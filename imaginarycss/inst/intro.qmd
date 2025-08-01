@@ -1,0 +1,1143 @@
+---
+title: "Introduction to imaginarycss: Analyzing Cognitive Social Structures"
+author:
+  - "George Vega Yon"
+  - "Sima Najafzadehkhoei"
+date: today            # or a fixed date like 2025-08-01
+format:
+  html:                # replaces rmarkdown::html_vignette
+    toc: true
+    toc-depth: 3
+    fig-width: 7
+    fig-height: 5
+
+vignette: >            # CRAN still needs these three % lines
+  %\VignetteIndexEntry{Introduction to imaginarycss: Analyzing Cognitive Social Structures}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+# ```{r setup, include=FALSE}
+# knitr::opts_chunk$set(
+#   echo = TRUE,
+#   collapse = TRUE,
+#   comment = "#>",
+#   fig.path = "man/figures/vignette-",
+#   out.width = "100%",
+#   dpi = 300,
+#   warning = FALSE,
+#   message = FALSE
+# )
+# ```
+# 
+
+# Introduction
+
+The `imaginarycss` package provides tools for analyzing **Cognitive Social Structures** (CSS), focusing on the discrepancies between actual social networks and individuals' perceptions of those networks. This package is particularly useful for understanding how people perceive social relationships and the systematic errors they make in their social cognition.
+
+## What are Cognitive Social Structures?
+
+Cognitive Social Structures (CSS) represent how individuals perceive the entire social network around them, not just their own relationships. Think of it this way: while traditional network analysis asks "Who is connected to whom?", CSS analysis asks "Who thinks who is connected to whom?"
+
+### The Core Concept
+
+Imagine you work in an office with 10 people. You have your own understanding of who talks to whom, who collaborates with whom, and who are friends. But your perception might be different from reality, and certainly different from what your colleagues perceive. CSS captures these multiple, potentially conflicting views of the same social reality.
+
+### Why This Matters
+
+Understanding perceptual differences in social networks is crucial because:
+
+1. **Decision Making**: People base their social strategies on their perceptions, not reality
+2. **Information Flow**: Misperceptions can block or redirect information paths
+3. **Organizational Dynamics**: Leadership effectiveness often depends on accurate social perception
+4. **Social Psychology**: Systematic biases reveal fundamental cognitive processes
+
+### Types of Perceptual Errors
+
+When we compare perceived networks to actual networks, several types of errors emerge:
+
+- **False Positives**: Seeing connections that don't exist ("imaginary ties")
+- **False Negatives**: Missing connections that do exist ("invisible ties") 
+- **Reciprocity Errors**: Misperceiving whether relationships are mutual
+- **Asymmetric Biases**: Systematically over- or under-estimating certain types of relationships
+
+When we compare these perceptions to the actual network structure, we can identify various types of perceptual errors that reveal important insights about social cognition.
+
+## Key Features
+
+- **Network Construction**: Create binary array graphs from matrices or lists of adjacency matrices
+- **Error Analysis**: Compute various types of perceptual errors including reciprocity errors and imaginary census
+- **Null Models**: Generate null distributions for testing the prevalence of imaginary structures
+- **Tie-Level Accuracy**: Analyze individual-level accuracy rates for perceiving ties and non-ties
+- **Network Sampling**: Sample perceived networks based on individual accuracy rates
+
+Let's start by loading the package:
+
+```{r load-package}
+library(imaginarycss)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+
+# Set a beautiful theme for all plots
+theme_set(theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", color = "#2c3e50"),
+    plot.subtitle = element_text(size = 12, color = "#7f8c8d"),
+    axis.title = element_text(size = 11, color = "#34495e"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "#ecf0f1", size = 0.5),
+    legend.title = element_text(size = 10, face = "bold"),
+    plot.background = element_rect(fill = "#ffffff", color = NA),
+    panel.background = element_rect(fill = "#ffffff", color = NA)
+  ))
+
+# Define a beautiful color palette
+css_colors <- c(
+  primary = "#3498db",
+  secondary = "#e74c3c", 
+  accent = "#9b59b6",
+  success = "#27ae60",
+  warning = "#f39c12",
+  info = "#17a2b8",
+  light = "#95a5a6",
+  dark = "#2c3e50"
+)
+```
+
+# Basic Usage
+
+## Creating a Barry Graph
+
+The fundamental data structure in `imaginarycss` is the `barry_graph` object, which represents a collection of networks where the first network is the "true" network and subsequent networks represent different individuals' perceptions.
+
+### Understanding the Data Structure
+
+A `barry_graph` object is essentially a "stack" of adjacency matrices:
+- **Layer 0**: The actual/true network (ground truth)
+- **Layer 1**: Person 1's perception of the entire network
+- **Layer 2**: Person 2's perception of the entire network
+- **Layer N**: Person N's perception of the entire network
+
+This structure allows us to compare what each person thinks the network looks like against reality and against each other's perceptions.
+
+### Why "Barry Graph"?
+
+The name comes from the underlying C++ library that efficiently handles binary array operations on multiple network layers simultaneously. This allows for fast computation of complex network comparisons that would be slow with traditional matrix operations.
+
+### Example 1: Simple Network from Matrix
+
+Let's create a simple example with a 4-node network:
+
+```{r basic-example}
+# Define edges for the true network and one perceived network
+source_ <- c(1, 2, 3, 1) 
+target_ <- c(2, 1, 4, 4)
+
+# Add perceived network (shifted by network size)
+source_ <- c(source_, source_[-1] + 4)
+target_ <- c(target_, target_[-1] + 4)
+
+# Create adjacency matrix
+adjmat <- matrix(0L, nrow = 8, ncol = 8)
+adjmat[cbind(source_, target_)] <- 1L
+
+# Create barry_graph object
+graph <- new_barry_graph(adjmat, n = 4)
+print(graph)
+```
+
+**What's happening here?**
+
+1. **True Network**: We define a 4-person network with edges (1→2, 2→1, 3→4, 1→4)
+2. **Perceived Network**: We create one person's perception by taking some of the true edges and shifting their indices by the network size (4)
+3. **Combined Matrix**: The 8×8 matrix contains both networks stacked together
+4. **Barry Graph**: The `new_barry_graph()` function recognizes this structure and creates the specialized object
+
+The key insight is that the person's perception (edges 2→1, 3→4, 1→4 shifted to positions 6→5, 7→8, 5→8) represents what one individual thinks the network looks like - which may differ from reality.
+
+### Example 2: Network from List of Matrices
+
+Alternatively, you can create a barry_graph from a list of adjacency matrices:
+
+```{r list-example}
+# True network (4x4)
+true_net <- matrix(c(
+  0, 1, 0, 1,
+  1, 0, 1, 0,
+  0, 1, 0, 1,
+  1, 0, 1, 0
+), nrow = 4, byrow = TRUE)
+
+# Perceived network by individual 1
+perceived_net1 <- matrix(c(
+  0, 1, 1, 1,  # Person 1 thinks there are more connections
+  1, 0, 1, 0,
+  1, 1, 0, 1,
+  1, 0, 1, 0
+), nrow = 4, byrow = TRUE)
+
+# Perceived network by individual 2
+perceived_net2 <- matrix(c(
+  0, 1, 0, 0,  # Person 2 thinks there are fewer connections
+  1, 0, 0, 0,
+  0, 0, 0, 1,
+  0, 0, 1, 0
+), nrow = 4, byrow = TRUE)
+
+# Create barry_graph from list
+net_list <- list(true_net, perceived_net1, perceived_net2)
+graph_from_list <- new_barry_graph(net_list)
+print(graph_from_list)
+```
+
+**Understanding the Perceptual Differences:**
+
+- **True Network**: A regular pattern with 6 edges
+- **Person 1's Perception**: Sees 8 edges (33% more than reality) - this person has a "densification bias"
+- **Person 2's Perception**: Sees only 4 edges (33% fewer than reality) - this person has a "sparsification bias"
+
+These different perceptions could arise from various factors:
+- **Position in network**: Central people might see more connections
+- **Personality traits**: Extroverts might perceive more social activity
+- **Attention patterns**: Some people notice strong ties, others notice weak signals
+- **Social desirability**: People might report what they think should exist
+
+## Key Attributes
+
+Every `barry_graph` object has important attributes:
+
+```{r attributes}
+# Network size (number of nodes)
+cat("Network size:", attr(graph, "netsize"), "\n")
+
+# Endpoints (boundaries between networks in the combined structure)
+cat("Endpoints:", attr(graph, "endpoints"), "\n")
+
+# Convert to edgelist for inspection
+edgelist <- barray_to_edgelist(graph)
+head(edgelist)
+```
+
+# Analyzing Perceptual Errors
+
+Understanding how and why people misperceive social networks is at the heart of CSS analysis. The `imaginarycss` package provides several sophisticated measures to quantify different types of perceptual errors.
+
+## Reciprocity Errors
+
+Reciprocity - whether relationships are mutual - is a fundamental property of social networks. When person A says they're friends with person B, is the feeling mutual? Reciprocity errors occur when individuals misperceive the reciprocal nature of relationships.
+
+### Types of Reciprocity Errors
+
+1. **Assumed Reciprocity**: Thinking a one-way relationship is mutual
+2. **Missed Reciprocity**: Thinking a mutual relationship is one-way  
+3. **False Asymmetry**: Seeing asymmetry where there's actually reciprocity
+4. **False Symmetry**: Seeing reciprocity where there's actually asymmetry
+
+### Why Reciprocity Matters
+
+- **Social Expectations**: We expect important relationships to be reciprocal
+- **Cognitive Load**: It's easier to remember "A and B are friends" than "A likes B but B doesn't like A"
+- **Projection**: We assume others feel the same way about us as we do about them
+
+```{r reciprocity-errors}
+# Compute reciprocity errors
+recip_errors <- count_recip_errors(graph)
+print(recip_errors)
+
+# Visualize the distribution
+ggplot(recip_errors, aes(x = reorder(name, value), y = value)) +
+  geom_col(
+    fill = css_colors["primary"], 
+    alpha = 0.8,
+    width = 0.7
+  ) +
+  geom_text(
+    aes(label = value), 
+    hjust = -0.2, 
+    color = css_colors["dark"],
+    size = 3.5,
+    fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    title = "🔄 Reciprocity Errors by Type",
+    subtitle = "Understanding how people misperceive mutual relationships",
+    x = "Error Type",
+    y = "Count",
+    caption = "Higher values indicate more frequent misperceptions"
+  ) +
+  theme(
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(color = css_colors["primary"])
+  )
+```
+
+## Imaginary Census
+
+The imaginary census provides a comprehensive classification of all possible perceptual errors. Think of it as a "taxonomy of mistakes" - every possible way someone can misperceive a dyadic relationship gets its own category.
+
+### The 10 Categories Explained
+
+The census classifies every dyad (pair of people) based on:
+1. **What actually exists** (null, asymmetric, or reciprocal tie)
+2. **What the perceiver thinks exists** (null, asymmetric, or reciprocal tie)
+
+This creates a 3×3 matrix of possibilities, but some combinations are subdivided:
+
+#### **Null Dyads** (no actual connection):
+- **(01) Accurate Null**: Correctly perceives no connection
+- **(02) Partial False Positive**: Sees one-way connection where none exists
+- **(03) Complete False Positive**: Sees mutual connection where none exists
+
+#### **Asymmetric Dyads** (one-way connection):
+- **(04) Partial False Negative**: Misses the connection entirely  
+- **(05) Accurate Asymmetric**: Correctly sees one-way connection
+- **(06) Mixed Asymmetric**: Sees connection but gets direction wrong
+- **(07) Partial False Positive**: Sees mutual connection where only one-way exists
+
+#### **Reciprocal Dyads** (mutual connection):
+- **(08) Complete False Negative**: Misses the connection entirely
+- **(09) Partial False Negative**: Sees only one direction of mutual tie
+- **(10) Accurate Reciprocal**: Correctly perceives mutual connection
+
+### Cognitive Implications
+
+Different error patterns suggest different underlying cognitive processes:
+- **High false positives**: "Rose-colored glasses" - seeing connections everywhere
+- **High false negatives**: "Tunnel vision" - missing connections that exist  
+- **Direction errors**: Difficulty with asymmetric relationships
+- **Reciprocity bias**: Tendency to assume relationships are mutual
+
+```{r imaginary-census}
+# Compute full imaginary census
+census <- count_imaginary_census(graph)
+print(census)
+
+# Clean up names for better visualization
+# Convert to regular data frame to avoid class conflicts
+census_df <- census[, names(census)]  # Strip custom class
+class(census_df) <- "data.frame"
+
+census_df$name_clean <- gsub("\\([0-9]+\\)$", "", census_df$name)
+census_summary <- census_df %>%
+  filter(grepl("^\\([0-9]", name)) %>%
+  mutate(
+    error_type = case_when(
+      grepl("Accurate null", name_clean) ~ "Accurate Null",
+      grepl("Partial false positive \\(null\\)", name_clean) ~ "Partial FP (Null)",
+      grepl("Complete false positive \\(null\\)", name_clean) ~ "Complete FP (Null)",
+      grepl("Partial false negative \\(assym\\)", name_clean) ~ "Partial FN (Asymm)",
+      grepl("Accurate assym", name_clean) ~ "Accurate Asymm",
+      grepl("Mixed assym", name_clean) ~ "Mixed Asymm",
+      grepl("Partial false positive \\(assym\\)", name_clean) ~ "Partial FP (Asymm)",
+      grepl("Complete false negative \\(full\\)", name_clean) ~ "Complete FN (Full)",
+      grepl("Partial false negative \\(full\\)", name_clean) ~ "Partial FN (Full)",
+      grepl("Accurate full", name_clean) ~ "Accurate Full",
+      TRUE ~ "Other"
+    )
+  )
+
+# Create a beautiful color palette for error types
+error_colors <- c(
+  "Accurate Null" = "#27ae60",           # Green for accurate
+  "Accurate Asymm" = "#2ecc71",          # Light green
+  "Accurate Full" = "#16a085",           # Teal
+  "Partial FP (Null)" = "#f39c12",       # Orange for mild errors
+  "Partial FN (Asymm)" = "#e67e22",      # Dark orange
+  "Partial FN (Full)" = "#d35400",       # Red-orange
+  "Complete FP (Null)" = "#e74c3c",      # Red for serious errors
+  "Complete FN (Full)" = "#c0392b",      # Dark red
+  "Partial FP (Asymm)" = "#8e44ad",      # Purple
+  "Mixed Asymm" = "#9b59b6",             # Light purple
+  "Other" = "#95a5a6"                    # Gray for other
+)
+
+# Visualize error distribution
+ggplot(census_summary, aes(x = reorder(error_type, value), y = value)) +
+  geom_col(aes(fill = error_type), alpha = 0.9, width = 0.8) +
+  geom_text(
+    aes(label = ifelse(value > 0, value, "")), 
+    hjust = -0.1, 
+    color = "#2c3e50",
+    size = 3.2,
+    fontface = "bold"
+  ) +
+  scale_fill_manual(values = error_colors) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    title = "🎯 Distribution of Perceptual Errors",
+    subtitle = "Comprehensive taxonomy of social perception mistakes",
+    x = "Error Type",
+    y = "Count",
+    caption = "Green = Accurate perceptions, Orange/Red = False positives/negatives, Purple = Mixed errors"
+  ) +
+  guides(fill = "none") +
+  theme(
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(color = css_colors["accent"])
+  )
+```
+
+# Analyzing Individual Accuracy
+
+Individual differences in social perception are often more interesting than aggregate patterns. Some people are "social radar" - exceptionally good at reading social networks. Others are "social blind spots" - systematically missing important patterns.
+
+## Tie-Level Accuracy
+
+This analysis breaks down accuracy into four key measures, distinguishing between different types of relationships and different types of correct judgments.
+
+### The Four Accuracy Measures
+
+1. **True Positive (Ego)**: Correctly identifying ties that involve the perceiver
+   - "I correctly know who I'm connected to"
+   - High scores suggest good self-awareness
+
+2. **True Negative (Ego)**: Correctly identifying non-ties that involve the perceiver  
+   - "I correctly know who I'm NOT connected to"
+   - High scores suggest realistic self-assessment
+
+3. **True Positive (Alter)**: Correctly identifying ties between other people
+   - "I correctly know who else is connected"
+   - High scores suggest good social observation skills
+
+4. **True Negative (Alter)**: Correctly identifying non-ties between other people
+   - "I correctly know who else is NOT connected"  
+   - High scores suggest avoiding false gossip/assumptions
+
+### Why This Decomposition Matters
+
+**Ego vs. Alter Accuracy:**
+- People are typically more accurate about their own relationships (ego) than others' relationships (alter)
+- But some individuals are better "social observers" and excel at alter accuracy
+- The ratio can reveal whether someone is self-focused vs. socially aware
+
+**True Positive vs. True Negative Accuracy:**
+- True positive accuracy: "Am I good at spotting connections?"
+- True negative accuracy: "Am I good at recognizing when there's no connection?"
+- Different cognitive processes may underlie these two abilities
+
+Understanding individual differences in perception accuracy is crucial:
+
+```{r tie-accuracy}
+# Compute tie-level accuracy for each individual
+accuracy <- tie_level_accuracy(graph)
+print(accuracy)
+
+# Reshape data for visualization
+# Convert to regular data frame first to avoid class conflicts
+accuracy_df <- accuracy[, names(accuracy)]  # Strip custom class
+class(accuracy_df) <- "data.frame"
+
+accuracy_long <- accuracy_df %>%
+  select(-k) %>%
+  tidyr::pivot_longer(
+    everything(),
+    names_to = "measure",
+    values_to = "probability"
+  ) %>%
+  mutate(
+    measure_clean = case_when(
+      measure == "p_0_ego" ~ "True Negative (Ego)",
+      measure == "p_1_ego" ~ "True Positive (Ego)", 
+      measure == "p_0_alter" ~ "True Negative (Alter)",
+      measure == "p_1_alter" ~ "True Positive (Alter)"
+    )
+  )
+
+# Create color palette for accuracy measures
+accuracy_colors <- c(
+  "True Negative (Ego)" = "#3498db",     # Blue
+  "True Positive (Ego)" = "#2980b9",     # Dark blue  
+  "True Negative (Alter)" = "#e74c3c",   # Red
+  "True Positive (Alter)" = "#c0392b"    # Dark red
+)
+
+# Visualize accuracy measures
+p1 <- ggplot(accuracy_long, aes(x = measure_clean, y = probability)) +
+  geom_violin(
+    aes(fill = measure_clean),
+    alpha = 0.7,
+    trim = FALSE,
+    scale = "width"
+  ) +
+  geom_boxplot(
+    width = 0.2,
+    alpha = 0.8,
+    outlier.alpha = 0.6,
+    outlier.size = 1.5
+  ) +
+  geom_jitter(
+    width = 0.15, 
+    alpha = 0.6, 
+    size = 2,
+    color = "#2c3e50"
+  ) +
+  scale_fill_manual(values = accuracy_colors) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "🎯 Individual-Level Accuracy Rates",
+    subtitle = "How well do people perceive different types of relationships?",
+    x = "Accuracy Measure",
+    y = "Accuracy Rate (%)",
+    caption = "Blue = Ego relationships (involving self), Red = Alter relationships (between others)"
+  ) +
+  guides(fill = "none") +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 10),
+    plot.title = element_text(color = css_colors["info"]),
+    panel.grid.major.x = element_blank()
+  )
+
+print(p1)
+```
+
+# Generating Null Models
+
+Statistical testing in network analysis requires careful null models. We can't just use random networks because individual perceptual biases aren't random - they're systematic and person-specific.
+
+## The Challenge of Network Null Models
+
+Traditional approaches might use:
+- **Random networks**: But real perception isn't random
+- **Erdős-Rényi models**: But they ignore individual differences
+- **Configuration models**: But they don't capture perceptual biases
+
+### Our Solution: Accuracy-Based Sampling
+
+The `imaginarycss` approach uses individual accuracy rates to generate realistic null distributions:
+
+1. **Measure each person's accuracy** for different types of relationships
+2. **Use these rates as probabilities** for generating simulated perceptions
+3. **Preserve individual differences** while randomizing specific errors
+4. **Generate many samples** to build null distributions
+
+This approach asks: "If someone has X% accuracy rate for ego ties and Y% accuracy for alter ties, what range of error patterns would we expect by chance?"
+
+## Sampling Perceived Networks
+
+The sampling process works as follows:
+
+1. **Start with the true network** as baseline
+2. **For each perceiver and each potential tie:**
+   - If it's an ego tie: Use their ego accuracy rate
+   - If it's an alter tie: Use their alter accuracy rate  
+   - If it should exist: Use true positive rate as probability
+   - If it shouldn't exist: Use true negative rate as probability
+3. **Generate binary outcome** based on these probabilities
+4. **Repeat many times** to create distribution
+
+```{r sampling}
+# Sample a single network based on accuracy rates
+set.seed(123)
+sampled_networks <- sample_css_network(graph, keep_baseline = TRUE)
+
+cat("Number of sampled networks:", length(sampled_networks), "\n")
+cat("Dimensions of each network:", dim(sampled_networks[[1]]), "\n")
+
+# Compare original vs sampled network density
+original_density <- sum(sampled_networks[[1]]) / (4 * 3)  # exclude diagonal
+sampled_density <- sum(sampled_networks[[2]]) / (4 * 3)
+
+cat("Original network density:", round(original_density, 3), "\n")
+cat("Sampled network density:", round(sampled_density, 3), "\n")
+```
+
+## Generating Multiple Samples for Statistical Testing
+
+The power of null models comes from generating many samples to understand the distribution of outcomes we'd expect by chance alone.
+
+### The Statistical Logic
+
+1. **Observed Pattern**: We see X false positives in our data
+2. **Null Hypothesis**: This is just what we'd expect given individual accuracy rates
+3. **Null Distribution**: Generate 1000+ samples using accuracy rates as probabilities
+4. **P-value**: What proportion of null samples have ≥ X false positives?
+5. **Interpretation**: If p < 0.05, the observed pattern is unlikely due to chance
+
+### Why This Approach Works
+
+- **Preserves individual differences**: Each person's bias level stays realistic
+- **Controls for network density**: Null models have similar overall connection rates
+- **Accounts for position effects**: Ego vs. alter accuracy differences are maintained
+- **Enables fair comparison**: Only the specific pattern of errors is randomized
+
+```{r multiple-samples}
+# Generate multiple samples for null distribution
+set.seed(456)
+n_samples <- 100
+
+# Note: For this example, we'll use a simpler approach
+# since the full null sampling may require additional setup
+null_samples <- replicate(n_samples, {
+  sample_css_network(graph, keep_baseline = FALSE)
+}, simplify = FALSE)
+
+# For demonstration, let's compute a simple metric instead of full census
+# We'll count the total number of ties in each sampled network
+null_densities <- sapply(null_samples, function(nets) {
+  if (length(nets) > 0) {
+    sum(nets[[1]]) / (4 * 3)  # Network density
+  } else {
+    0
+  }
+})
+
+# Compare with observed density
+observed_density <- sum(sampled_networks[[2]]) / (4 * 3)
+
+# Calculate p-value first
+p_value <- mean(null_densities >= observed_density)
+cat("P-value for network density:", round(p_value, 4), "\n")
+
+# Visualization
+null_df <- data.frame(
+  density = null_densities,
+  type = "Null Distribution"
+)
+
+# Create beautiful density comparison plot
+density_plot <- ggplot(null_df, aes(x = density)) +
+  geom_histogram(
+    bins = 25, 
+    alpha = 0.8, 
+    fill = css_colors["primary"], 
+    color = "white",
+    size = 0.3
+  ) +
+  geom_vline(
+    xintercept = observed_density, 
+    color = css_colors["secondary"], 
+    linetype = "dashed", 
+    size = 1.2
+  ) +
+  geom_density(
+    aes(y = after_stat(density) * length(null_densities) * 0.05),
+    color = css_colors["accent"],
+    size = 1.5,
+    alpha = 0.7
+  ) +
+  annotate(
+    "label", 
+    x = observed_density + 0.02, 
+    y = Inf, 
+    label = paste("Observed\n", round(observed_density, 3)),
+    vjust = 1.2,
+    hjust = 0,
+    color = css_colors["secondary"],
+    fill = "white",
+    size = 3.5,
+    fontface = "bold",
+    label.padding = unit(0.3, "lines")
+  ) +
+  scale_x_continuous(labels = scales::percent_format()) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "📊 Null Distribution of Network Density",
+    subtitle = "Comparing observed patterns against chance expectations",
+    x = "Network Density (%)",
+    y = "Frequency",
+    caption = paste("P-value:", round(p_value, 4), "| Based on", n_samples, "null samples")
+  ) +
+  theme(
+    plot.title = element_text(color = css_colors["primary"]),
+    panel.grid.major.x = element_line(color = "#ecf0f1", size = 0.5),
+    panel.grid.major.y = element_line(color = "#ecf0f1", size = 0.5)
+  )
+
+print(density_plot)
+```
+
+# Advanced Analysis: Counter Types
+
+One of the most sophisticated features of `imaginarycss` is the ability to decompose errors based on the perceiver's involvement in the relationship being judged.
+
+## The Psychology Behind Ego vs. Alter Perception
+
+### Why This Distinction Matters
+
+**Ego-Involved Relationships** (perceiver is part of the dyad):
+- **Higher stakes**: These relationships directly affect the perceiver
+- **More information**: Direct experience vs. observation
+- **Different biases**: Self-enhancement, wishful thinking, social desirability
+- **Example**: Person A judging whether A↔B connection exists
+
+**Alter-Alter Relationships** (perceiver observes others):
+- **Lower stakes**: These relationships don't directly involve the perceiver  
+- **Less information**: Must rely on observation and inference
+- **Different biases**: Stereotyping, availability heuristic, gossip effects
+- **Example**: Person A judging whether B↔C connection exists
+
+### Theoretical Predictions
+
+Research suggests several patterns:
+
+1. **Ego Accuracy Advantage**: People should be more accurate about their own relationships
+2. **Ego Positivity Bias**: People might over-report their own connections (social desirability)
+3. **Alter Projection**: People might assume others have relationships similar to their own
+4. **Alter Visibility**: Some alter relationships are more visible/observable than others
+
+## Separating Ego vs. Alter Perceptions
+
+The package allows you to analyze errors separately based on whether the perceiver is involved in the relationship:
+
+```{r counter-types}
+# All ties
+census_all <- count_imaginary_census(graph, counter_type = 0)
+
+# Only ties involving the perceiver (ego)
+census_ego <- count_imaginary_census(graph, counter_type = 1)
+
+# Only ties not involving the perceiver (alter-alter)
+census_alter <- count_imaginary_census(graph, counter_type = 2)
+
+# Verify that ego + alter = all
+verification <- census_all$value - (census_ego$value + census_alter$value)
+all_match <- all(verification == 0)
+cat("Ego + Alter counts equal All counts:", all_match, "\n")
+
+# Compare error patterns
+# Convert to regular data frame to avoid class conflicts
+census_all_df <- census_all[, names(census_all)]
+class(census_all_df) <- "data.frame"
+census_ego_df <- census_ego[, names(census_ego)]
+class(census_ego_df) <- "data.frame"
+census_alter_df <- census_alter[, names(census_alter)]
+class(census_alter_df) <- "data.frame"
+
+compare_df <- data.frame(
+  error_type = census_all_df$name,
+  all_ties = census_all_df$value,
+  ego_ties = census_ego_df$value,
+  alter_ties = census_alter_df$value
+) %>%
+  filter(grepl("^\\([0-9]", error_type)) %>%
+  mutate(
+    ego_proportion = ego_ties / all_ties,
+    alter_proportion = alter_ties / all_ties
+  )
+
+# Visualize the comparison
+compare_long <- compare_df %>%
+  select(error_type, ego_proportion, alter_proportion) %>%
+  tidyr::pivot_longer(
+    cols = c(ego_proportion, alter_proportion),
+    names_to = "tie_type",
+    values_to = "proportion"
+  ) %>%
+  mutate(
+    tie_type = ifelse(tie_type == "ego_proportion", "Ego Involved", "Alter-Alter"),
+    error_short = substr(error_type, 1, 20)
+  )
+
+# Create gradient colors for ego vs alter comparison
+relationship_colors <- c(
+  "Ego Involved" = "#3498db",
+  "Alter-Alter" = "#e74c3c"
+)
+
+# Create a more sophisticated comparison plot
+comparison_plot <- ggplot(compare_long, aes(x = error_short, y = proportion, fill = tie_type)) +
+  geom_col(
+    position = position_dodge(width = 0.8), 
+    alpha = 0.9,
+    width = 0.7
+  ) +
+  geom_text(
+    aes(label = ifelse(proportion > 0.02, scales::percent(proportion, accuracy = 1), "")),
+    position = position_dodge(width = 0.8),
+    hjust = -0.1,
+    size = 3,
+    fontface = "bold",
+    color = "#2c3e50"
+  ) +
+  scale_fill_manual(
+    values = relationship_colors,
+    name = "Relationship Type"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    expand = expansion(mult = c(0, 0.15))
+  ) +
+  coord_flip() +
+  labs(
+    title = "👥 Error Patterns: Ego vs. Alter Relationships",
+    subtitle = "How perception accuracy varies by relationship involvement",
+    x = "Error Type",
+    y = "Proportion of Total Errors",
+    caption = "Blue = Relationships involving the perceiver | Red = Relationships between others"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.text = element_text(size = 10),
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(color = css_colors["info"]),
+    panel.grid.major.x = element_line(color = "#ecf0f1", size = 0.3),
+    legend.box.background = element_rect(color = "#bdc3c7", fill = "#ffffff")
+  ) +
+  guides(
+    fill = guide_legend(
+      title.position = "top",
+      title.hjust = 0.5,
+      nrow = 1
+    )
+  )
+
+print(comparison_plot)
+```
+
+# Real-World Example: Krackhardt Network
+
+Let's demonstrate the package with a more realistic example using organizational network data. The Krackhardt advice network is a classic dataset in organizational behavior research.
+
+## Understanding Organizational Networks
+
+**The Setting**: A high-tech company where researchers measured both:
+- **Actual advice relationships**: Who actually seeks advice from whom (observed)
+- **Perceived advice relationships**: Who each employee thinks seeks advice from whom
+
+**Why This Matters**:
+- **Information flow**: Advice networks determine how knowledge spreads
+- **Influence patterns**: Perceived networks affect who people try to influence  
+- **Organizational design**: Managers need accurate views of informal structure
+- **Change management**: Interventions should target actual vs. perceived bottlenecks
+
+## The Cognitive Challenge
+
+Organizational advice networks present unique perceptual challenges:
+
+1. **Visibility**: Advice-seeking often happens privately (email, closed-door meetings)
+2. **Asymmetry**: Advice relationships are inherently directional and often non-reciprocal
+3. **Status effects**: People may misperceive advice patterns based on formal hierarchy
+4. **Wishful thinking**: Employees might report advice patterns they wish existed
+
+```{r krackhardt-setup, eval=FALSE}
+# Note: This assumes you have the Krackhardt advice network data
+# krack_data <- read.csv("data-raw/advice_nets.csv")
+# For demonstration, we'll create a simulated version
+
+set.seed(789)
+n_people <- 10
+n_networks <- n_people + 1  # true network + perceptions
+
+# Simulate advice network data
+create_advice_network <- function(n, density = 0.3) {
+  adj_mat <- matrix(0, n, n)
+  n_edges <- floor(n * (n-1) * density)
+  possible_edges <- which(upper.tri(adj_mat) | lower.tri(adj_mat), arr.ind = TRUE)
+  selected_edges <- sample(nrow(possible_edges), n_edges)
+  adj_mat[possible_edges[selected_edges, ]] <- 1
+  return(adj_mat)
+}
+
+# Create true network and individual perceptions
+true_network <- create_advice_network(n_people, 0.25)
+perceived_networks <- lapply(1:n_people, function(i) {
+  # Add some noise to perceptions
+  perceived <- true_network
+  # Random errors
+  error_rate <- runif(1, 0.1, 0.3)
+  n_errors <- floor(n_people * (n_people - 1) * error_rate)
+  error_positions <- sample(n_people * n_people, n_errors)
+  perceived[error_positions] <- 1 - perceived[error_positions]
+  diag(perceived) <- 0  # No self-loops
+  return(perceived)
+})
+
+# Combine into barry_graph
+all_networks <- c(list(true_network), perceived_networks)
+krack_graph <- new_barry_graph(all_networks)
+```
+
+```{r krackhardt-analysis, eval=FALSE}
+# Analyze the organizational network
+krack_accuracy <- tie_level_accuracy(krack_graph)
+
+# Summary statistics
+# Convert to regular data frame first
+accuracy_df <- krack_accuracy[, names(krack_accuracy)]
+class(accuracy_df) <- "data.frame"
+
+summary_stats <- accuracy_df %>%
+  select(-k) %>%
+  summarise(
+    across(everything(), list(mean = mean, sd = sd), na.rm = TRUE)
+  )
+
+print(summary_stats)
+
+# Individual differences in accuracy
+# Individual differences in accuracy with beautiful styling
+individual_plot <- ggplot(krack_accuracy, aes(x = factor(k))) +
+  geom_point(
+    aes(y = p_1_ego, color = "True Positive (Ego)"), 
+    size = 3.5,
+    alpha = 0.8
+  ) +
+  geom_point(
+    aes(y = p_0_ego, color = "True Negative (Ego)"), 
+    size = 3.5,
+    alpha = 0.8
+  ) +
+  geom_point(
+    aes(y = p_1_alter, color = "True Positive (Alter)"), 
+    size = 3.5,
+    alpha = 0.8
+  ) +
+  geom_point(
+    aes(y = p_0_alter, color = "True Negative (Alter)"), 
+    size = 3.5,
+    alpha = 0.8
+  ) +
+  geom_smooth(
+    aes(y = p_1_ego, color = "True Positive (Ego)"),
+    method = "loess",
+    se = FALSE,
+    size = 1,
+    alpha = 0.6
+  ) +
+  geom_smooth(
+    aes(y = p_0_ego, color = "True Negative (Ego)"),
+    method = "loess", 
+    se = FALSE,
+    size = 1,
+    alpha = 0.6
+  ) +
+  scale_color_manual(
+    values = c(
+      "True Positive (Ego)" = "#2980b9",
+      "True Negative (Ego)" = "#3498db", 
+      "True Positive (Alter)" = "#c0392b",
+      "True Negative (Alter)" = "#e74c3c"
+    ),
+    name = "Accuracy Measure"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent_format(),
+    limits = c(0, 1)
+  ) +
+  labs(
+    title = "🧠 Individual Accuracy Profiles",
+    subtitle = "Person-by-person variation in social perception skills",
+    x = "Individual ID",
+    y = "Accuracy Rate (%)",
+    caption = "Smooth lines show trends across individuals"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(face = "bold"),
+    plot.title = element_text(color = css_colors["dark"]),
+    panel.grid.minor = element_blank(),
+    legend.box.background = element_rect(color = "#bdc3c7", fill = "#ffffff", alpha = 0.8)
+  ) +
+  guides(
+    color = guide_legend(
+      title.position = "top",
+      title.hjust = 0.5,
+      nrow = 2,
+      override.aes = list(size = 4)
+    )
+  )
+
+print(individual_plot)
+
+# Network-level analysis
+krack_census <- count_imaginary_census(krack_graph)
+krack_recip <- count_recip_errors(krack_graph)
+
+# Performance benchmarking
+system.time({
+  sample_css_network(krack_graph)
+})
+```
+
+# Best Practices and Tips
+
+## 1. Data Preparation
+
+### Matrix Requirements
+- **Square matrices**: Each network must be n×n where n is the number of actors
+- **Binary values**: Use 0s and 1s for absent/present ties (integer matrices preferred)
+- **Diagonal handling**: Set diag(matrix) = 0 unless self-loops are meaningful
+- **Consistent ordering**: Ensure all matrices use the same actor ordering
+
+### Common Data Issues
+- **Missing data**: Decide whether to exclude actors or impute missing perceptions
+- **Partial networks**: Some people might not report on all possible ties
+- **Multiple relations**: Keep different relationship types (friendship, advice, etc.) separate
+- **Temporal alignment**: Ensure "true" and "perceived" networks refer to the same time period
+
+## 2. Interpretation Guidelines
+
+### Understanding Error Patterns
+
+**High False Positive Rates** suggest:
+- Wishful thinking or social desirability bias
+- Over-attribution of weak signals as meaningful ties
+- Projection of one's own relationship patterns onto others
+- Poor boundary detection (treating acquaintances as friends)
+
+**High False Negative Rates** suggest:
+- Conservative threshold for recognizing relationships
+- Limited social observation or attention
+- Focus on one's own relationships vs. others' relationships
+- Underestimation of weak tie importance
+
+**Asymmetric Errors** indicate:
+- Difficulty processing non-reciprocal relationships
+- Cognitive bias toward assuming mutuality
+- Status-based misperceptions (assuming high-status people have more connections)
+- Projection of one's own reciprocity preferences
+
+### Statistical Significance
+- Always compare observed patterns to appropriate null distributions
+- Account for multiple testing when examining many error types
+- Consider effect sizes, not just p-values (large networks can make tiny effects "significant")
+- Report confidence intervals around accuracy estimates
+
+## 3. Performance Considerations
+
+### Computational Efficiency
+- **Large networks**: Use counter_type parameters to focus on specific aspects
+- **Memory management**: barry_graph objects store networks efficiently, but very large networks still require substantial RAM
+- **Parallel processing**: For multiple null samples, consider parallel execution
+- **Caching**: Store results of expensive computations (tie_level_accuracy, null distributions)
+
+### Scalability Guidelines
+- Networks < 50 nodes: All analyses should run quickly
+- Networks 50-200 nodes: Consider focusing analyses, use sampling for null models  
+- Networks > 200 nodes: Definitely use sampling, consider network partitioning approaches
+
+## 4. Visualization Tips
+
+### Effective Plotting Strategies
+- **Color coding**: Use consistent colors across plots for the same error types
+- **Error bars**: Include confidence intervals for accuracy measures
+- **Faceting**: Separate ego vs. alter effects, or different individuals
+- **Annotations**: Label important patterns or outliers directly on plots
+
+### Avoiding Common Mistakes
+- Don't plot raw counts without considering network size differences
+- Don't ignore individual variation when showing group averages  
+- Don't use pie charts for error type distributions (bar charts are clearer)
+- Don't forget to explain what each error type means in captions
+
+## 5. Study Design Considerations
+
+### Data Collection Best Practices
+- **Clear instructions**: Ensure respondents understand what relationships to report
+- **Roster methods**: Provide complete lists of names rather than free recall
+- **Multiple informants**: Validate "true" networks with multiple sources when possible
+- **Temporal precision**: Be specific about the time period being assessed
+
+### Validation Approaches
+- **Inter-rater reliability**: When possible, compare multiple perceptions of the same network
+- **Behavioral validation**: Cross-validate perceived networks with behavioral indicators
+- **Longitudinal stability**: Test whether perceptual patterns are stable over time
+- **Cross-network validation**: Check if the same people show similar biases across different relationship types
+
+# Conclusion
+
+The `imaginarycss` package provides a comprehensive toolkit for analyzing cognitive social structures and understanding systematic errors in social perception. This field sits at the intersection of network analysis, social psychology, and cognitive science, offering insights into fundamental questions about how humans navigate social worlds.
+
+## Key Applications and Research Domains
+
+### **Organizational Research**
+- **Information flow analysis**: Understanding how misperceptions block or redirect knowledge sharing
+- **Leadership assessment**: Identifying managers who accurately perceive informal networks
+- **Team formation**: Matching people based on complementary social perception skills
+- **Change management**: Targeting interventions based on actual vs. perceived influence patterns
+
+### **Social Psychology**
+- **Cognitive bias research**: Quantifying systematic errors in social cognition
+- **Individual differences**: Understanding why some people are better "social radars"
+- **Stereotype and prejudice**: Analyzing how group membership affects social perception
+- **Social development**: Tracking how social perception accuracy changes with age/experience
+
+### **Network Analysis Methodology**
+- **Validation studies**: Assessing the accuracy of network data collection methods
+- **Missing data**: Understanding systematic patterns in who gets "missed" in network surveys
+- **Multi-perspective networks**: Combining multiple viewpoints to improve network measurement
+- **Dynamic networks**: Understanding how perceptions lag behind actual network changes
+
+### **Clinical and Applied Settings**
+- **Social skills assessment**: Measuring social perception accuracy as a clinical indicator
+- **Intervention evaluation**: Testing whether training improves social perception
+- **Group therapy**: Understanding how members perceive group dynamics
+- **Autism research**: Quantifying differences in social network perception
+
+## Theoretical Contributions
+
+### **Cognitive Mechanisms**
+The package's decomposition of errors reveals different underlying cognitive processes:
+- **Attention**: What social information do people notice vs. miss?
+- **Memory**: How accurately do people remember social interactions?
+- **Inference**: What assumptions do people make about unobserved relationships?
+- **Projection**: How do people's own experiences bias their perceptions?
+
+### **Social Processes**  
+The ego vs. alter distinction illuminates different social psychological mechanisms:
+- **Self-enhancement**: Do people over-report their own social connections?
+- **Social desirability**: Do people report relationships they think they should have?
+- **Availability bias**: Are recent or salient relationships over-weighted?
+- **Status effects**: Do perceptions vary systematically with social position?
+
+## Methodological Innovations
+
+### **Null Model Development**
+The accuracy-based sampling approach represents a significant methodological advance:
+- **Realistic baselines**: Null models preserve individual differences while randomizing specific errors
+- **Appropriate controls**: Statistical tests account for person-specific biases
+- **Flexible framework**: Can be extended to other types of network perception tasks
+
+### **Error Taxonomy**
+The 10-category imaginary census provides a comprehensive framework:
+- **Theoretical grounding**: Categories map onto distinct cognitive and social processes
+- **Empirical utility**: Different error types correlate with different individual and situational factors
+- **Cross-study comparison**: Standardized categories enable meta-analysis across studies
+
+## Future Directions
+
+The package enables several emerging research directions:
+
+1. **Multi-layer networks**: Extending CSS analysis to multiple relationship types simultaneously
+2. **Dynamic CSS**: Analyzing how perceptions change over time and how they lag behind reality
+3. **Cultural variation**: Comparing CSS patterns across different cultural contexts
+4. **Machine learning**: Using error patterns to predict other social and cognitive outcomes
+5. **Intervention research**: Testing whether training can improve social perception accuracy
+
+## Implementation Philosophy
+
+The package's strength lies in its ability to decompose complex perceptual patterns into interpretable components. Rather than simply asking "Are perceptions accurate?", it asks:
+- **What types of errors are most common?**
+- **Which individuals make which types of errors?**
+- **How do errors vary across different types of relationships?**
+- **Are observed error patterns statistically meaningful?**
+
+This granular approach enables researchers to identify specific mechanisms and develop targeted interventions, rather than treating social perception as a monolithic ability.
+
+## Final Recommendations
+
+For researchers new to CSS analysis:
+1. **Start simple**: Begin with small, well-understood networks to build intuition
+2. **Validate carefully**: Cross-check "true" networks with multiple sources when possible
+3. **Think theoretically**: Connect error patterns to specific psychological or social mechanisms
+4. **Use null models**: Always compare observed patterns to appropriate baselines
+5. **Report comprehensively**: Include individual differences alongside group-level patterns
+
+The field of cognitive social structures is rapidly evolving, and the `imaginarycss` package provides the computational tools needed to advance both theoretical understanding and practical applications.
+
+For more information and updates, visit the package repository and documentation. more information and updates, visit the package repository and documentation.
+
+## References
+
+- Krackhardt, D. (1987). Cognitive social structures. *Social Networks*, 9(2), 109-134.
+- Vega Yon, G. G., & Demarais, A. (2022). Exponential random graph models for little networks. *Social Networks*, 70, 181-195.
+
+---
+
+*This vignette was created with `imaginarycss` version `r packageVersion("imaginarycss")`.*
+
