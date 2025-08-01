@@ -17,6 +17,19 @@ vignette: >            # CRAN still needs these three % lines
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/vignette-",
+  out.width = "100%",
+  dpi = 300,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
 
 # Introduction
 

@@ -21,13 +21,13 @@ Imports:
     Rcpp,
     stats
 Suggests: 
+    dplyr,
+    ggplot2,
     knitr,
     rmarkdown,
     tinytest,
     quarto,
-    ggplot2,
-    dplyr,
+    viridis,
     tidyr,
-    viridis
-VignetteBuilder: 
-    quarto
+    scales
+VignetteBuilder: knitr
