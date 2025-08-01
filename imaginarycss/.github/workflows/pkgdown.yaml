@@ -1,0 +1,21 @@
+url: https://gvegayon.github.io/imaginary-structures
+
+template:
+  bootstrap: 5
+
+home:
+  title: "Imaginary Structures"
+  description: >
+    An R package for imaginary structures analysis
+
+reference:
+- title: "Main functions"
+  desc: "Core functionality"
+- title: "Helper functions"  
+  desc: "Utility functions"
+
+articles:
+- title: "Getting started"
+  navbar: ~
+  contents:
+  - starts_with("introduction")

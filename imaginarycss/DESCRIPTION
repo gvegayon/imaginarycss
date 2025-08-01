@@ -23,9 +23,8 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    tinytest
+    tinytest,
+    quarto
 VignetteBuilder: 
     quarto
 
-SystemRequirements: Quarto command line tool
-    (<https://github.com/quarto-dev/quarto-cli>).
