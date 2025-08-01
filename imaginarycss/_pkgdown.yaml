@@ -8,6 +8,7 @@ home:
   description: >
     Tools for measuring and testing imaginary cognitive social structure (CSS) motifs
 
+
 # Temporarily disable articles while debugging Quarto
 # articles:
 # - title: "Getting started"
