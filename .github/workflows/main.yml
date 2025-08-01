@@ -1,41 +1,58 @@
- # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+name: test.yaml
+
+permissions: read-all
+
 on:
   push:
     branches: [main, master]
   pull_request:
-  release:
-    types: [published]
   workflow_dispatch:
-name: pkgdown.yaml
-permissions: read-all
+    inputs:
+      version:
+        description: |
+          Quarto version, may be "release", "pre-release" or a version number.
+        required: true
+        default: 'release'
+        type: string
+      tinytex:
+        description: 'If true, install TinyTex, required for PDF rendering'
+        required: false
+        default: 'false'
+
 jobs:
-  pkgdown:
-    runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
+  quarto-setup:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (${{ inputs.version || matrix.version }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ inputs.version && fromJSON(format('["{0}"]', inputs.version)) || fromJSON('["release", "pre-release"]') }}
+        config:
+          # Default config for standard platforms
+          - os: macos-latest
+          - os: macos-13
+          - os: windows-latest
+            tinytex: 'false'
+          - os: ubuntu-latest
+          # Special config for ARM
+          - os: ubuntu-22.04-arm
+            tinytex: 'false'
+
     steps:
       - uses: actions/checkout@v4
-      - uses: r-lib/actions/setup-pandoc@v2
-      - uses: r-lib/actions/setup-r@v2
+
+      - uses: ./setup
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          use-public-rspm: true
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
-        with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+          version: ${{ matrix.version }}
+          tinytex: ${{ inputs.tinytex || matrix.config.tinytex || 'true' }}
+
+      - run: quarto --version
+
+      - run: which quarto
+        if: ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+
+      - run: where.exe quarto
+        if: ${{ runner.os == 'Windows' }}
