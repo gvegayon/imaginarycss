@@ -25,7 +25,9 @@ Suggests:
     rmarkdown,
     tinytest,
     quarto,
-    ggplot2
+    ggplot2,
+    dplyr,
+    tidyr
 VignetteBuilder: 
     quarto
 
