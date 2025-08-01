@@ -30,4 +30,5 @@ Suggests:
     viridis,
     tidyr,
     scales
-VignetteBuilder: knitr
+VignetteBuilder:
+    quarto
