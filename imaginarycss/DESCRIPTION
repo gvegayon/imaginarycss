@@ -24,7 +24,8 @@ Suggests:
     knitr,
     rmarkdown,
     tinytest,
-    quarto
+    quarto,
+    ggplot2
 VignetteBuilder: 
     quarto
 
