@@ -27,7 +27,7 @@ Suggests:
     quarto,
     ggplot2,
     dplyr,
-    tidyr
+    tidyr,
+    viridis
 VignetteBuilder: 
     quarto
-
