@@ -2,6 +2,8 @@ Package: imaginarycss
 Version: 0.0-9000
 Title: Imaginary CSS Structures
 Description: Tools for measuring and testing imaginary cognitive social structure (CSS) motifs.
+URL: https://gvegayon.github.io/imaginary-structures
+BugReports: https://github.com/gvegayon/imaginary-structures/issues
 Authors@R: c(
   person(
     "George", "Vega Yon", role=c("aut","cre"), email="g.vegayon@gmail.com",
@@ -30,5 +32,4 @@ Suggests:
     viridis,
     tidyr,
     scales
-VignetteBuilder:
-    quarto
+VignetteBuilder: quarto
