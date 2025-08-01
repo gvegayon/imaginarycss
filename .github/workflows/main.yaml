@@ -21,24 +21,15 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
-      - uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: release
-
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown
+          extra-packages: any::pkgdown, any::quarto
           needs: website
           working-directory: imaginarycss
-
-      - name: Install Quarto R package
-        run: |
-          install.packages("quarto")
-        shell: Rscript {0}
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = TRUE)
