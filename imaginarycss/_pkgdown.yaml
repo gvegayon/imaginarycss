@@ -9,7 +9,9 @@ home:
     Tools for measuring and testing imaginary cognitive social structure (CSS) motifs
 
 articles:
-- title: "Getting started"
-  navbar: ~
-  contents:
-  - intro
+  - title: "Getting started"
+    navbar: ~
+    contents:
+      - intro
+      
+      
