@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# R build artifacts
+*.tar.gz
+*.Rcheck/
