@@ -1,0 +1,317 @@
+---
+title: "Introduction to imaginarycss"
+author: "George Vega Yon"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    fig-width: 7
+    fig-height: 5
+    theme: none
+    minimal: true
+    embed-resources: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to imaginarycss}
+  %\VignetteEngine{quarto::format}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+   echo = TRUE,
+   collapse = TRUE,
+   comment = "#>",
+   fig.path = "man/figures/vignette-",
+   out.width = "100%",
+   dpi = 300,
+   warning = FALSE,
+   message = FALSE
+ )
+```
+
+
+
+# Analyzing Perceptual Errors
+
+Understanding how and why people misperceive social networks is at the heart of CSS analysis. The `imaginarycss` package provides several sophisticated measures to quantify different types of perceptual errors.
+
+## Reciprocity Errors
+
+Reciprocity - whether relationships are mutual - is a fundamental property of social networks. When person A says they're friends with person B, is the feeling mutual? Reciprocity errors occur when individuals misperceive the reciprocal nature of relationships.
+
+### Types of Reciprocity Errors
+
+1. **Assumed Reciprocity**: Thinking a one-way relationship is mutual
+2. **Missed Reciprocity**: Thinking a mutual relationship is one-way  
+3. **False Asymmetry**: Seeing asymmetry where there's actually reciprocity
+4. **False Symmetry**: Seeing reciprocity where there's actually asymmetry
+
+### Why Reciprocity Matters
+
+- **Social Expectations**: We expect important relationships to be reciprocal
+- **Cognitive Load**: It's easier to remember "A and B are friends" than "A likes B but B doesn't like A"
+- **Projection**: We assume others feel the same way about us as we do about them
+
+```{r reciprocity-errors}
+# Compute reciprocity errors
+recip_errors <- count_recip_errors(graph)
+print(recip_errors)
+
+# Visualize the distribution
+ggplot(recip_errors, aes(x = reorder(name, value), y = value)) +
+  geom_col(
+    fill = css_colors["primary"], 
+    alpha = 0.8,
+    width = 0.7
+  ) +
+  geom_text(
+    aes(label = value), 
+    hjust = -0.2, 
+    color = css_colors["dark"],
+    size = 3.5,
+    fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    title = "🔄 Reciprocity Errors by Type",
+    subtitle = "Understanding how people misperceive mutual relationships",
+    x = "Error Type",
+    y = "Count",
+    caption = "Higher values indicate more frequent misperceptions"
+  ) +
+  theme(
+    axis.text.y = element_text(size = 10),
+    plot.title = element_text(color = css_colors["primary"])
+  )
+```
+
+## Imaginary Census
+
+The imaginary census provides a comprehensive classification of all possible perceptual errors. Think of it as a "taxonomy of mistakes" - every possible way someone can misperceive a dyadic relationship gets its own category.
+
+### The 10 Categories Explained
+
+The census classifies every dyad (pair of people) based on:
+1. **What actually exists** (null, asymmetric, or reciprocal tie)
+2. **What the perceiver thinks exists** (null, asymmetric, or reciprocal tie)
+
+This creates a 3×3 matrix of possibilities, but some combinations are subdivided:
+
+#### **Null Dyads** (no actual connection):
+- **(01) Accurate Null**: Correctly perceives no connection
+- **(02) Partial False Positive**: Sees one-way connection where none exists
+- **(03) Complete False Positive**: Sees mutual connection where none exists
+
+#### **Asymmetric Dyads** (one-way connection):
+- **(04) Partial False Negative**: Misses the connection entirely  
+- **(05) Accurate Asymmetric**: Correctly sees one-way connection
+- **(06) Mixed Asymmetric**: Sees connection but gets direction wrong
+- **(07) Partial False Positive**: Sees mutual connection where only one-way exists
+
+#### **Reciprocal Dyads** (mutual connection):
+- **(08) Complete False Negative**: Misses the connection entirely
+- **(09) Partial False Negative**: Sees only one direction of mutual tie
+- **(10) Accurate Reciprocal**: Correctly perceives mutual connection
+
+### Cognitive Implications
+
+Different error patterns suggest different underlying cognitive processes:
+- **High false positives**: "Rose-colored glasses" - seeing connections everywhere
+- **High false negatives**: "Tunnel vision" - missing connections that exist  
+- **Direction errors**: Difficulty with asymmetric relationships
+- **Reciprocity bias**: Tendency to assume relationships are mutual
+
+```{r imaginary-census}
+# Compute full imaginary census
+census <- count_imaginary_census(graph)
+print(census)
+
+# Clean up names for better visualization
+# Convert to regular data frame to avoid class conflicts
+census_df <- census[, names(census)]  # Strip custom class
+class(census_df) <- "data.frame"
+
+census_df$name_clean <- gsub("\\([0-9]+\\)$", "", census_df$name)
+census_summary <- census_df %>%
+  filter(grepl("^\\([0-9]", name)) %>%
+  mutate(
+    error_type = case_when(
+      grepl("Accurate null", name_clean) ~ "Accurate Null",
+      grepl("Partial false positive \\(null\\)", name_clean) ~ "Partial FP (Null)",
+      grepl("Complete false positive \\(null\\)", name_clean) ~ "Complete FP (Null)",
+      grepl("Partial false negative \\(assym\\)", name_clean) ~ "Partial FN (Asymm)",
+      grepl("Accurate assym", name_clean) ~ "Accurate Asymm",
+      grepl("Mixed assym", name_clean) ~ "Mixed Asymm",
+      grepl("Partial false positive \\(assym\\)", name_clean) ~ "Partial FP (Asymm)",
+      grepl("Complete false negative \\(full\\)", name_clean) ~ "Complete FN (Full)",
+      grepl("Partial false negative \\(full\\)", name_clean) ~ "Partial FN (Full)",
+      grepl("Accurate full", name_clean) ~ "Accurate Full",
+      TRUE ~ "Other"
+    )
+  )
+
+# Create a beautiful color palette for error types
+error_colors <- c(
+  "Accurate Null" = "#27ae60",           # Green for accurate
+  "Accurate Asymm" = "#2ecc71",          # Light green
+  "Accurate Full" = "#16a085",           # Teal
+  "Partial FP (Null)" = "#f39c12",       # Orange for mild errors
+  "Partial FN (Asymm)" = "#e67e22",      # Dark orange
+  "Partial FN (Full)" = "#d35400",       # Red-orange
+  "Complete FP (Null)" = "#e74c3c",      # Red for serious errors
+  "Complete FN (Full)" = "#c0392b",      # Dark red
+  "Partial FP (Asymm)" = "#8e44ad",      # Purple
+  "Mixed Asymm" = "#9b59b6",             # Light purple
+  "Other" = "#95a5a6"                    # Gray for other
+)
+
+# Visualize error distribution
+ggplot(census_summary, aes(x = reorder(error_type, value), y = value)) +
+  geom_col(aes(fill = error_type), alpha = 0.9, width = 0.8) +
+  geom_text(
+    aes(label = ifelse(value > 0, value, "")), 
+    hjust = -0.1, 
+    color = "#2c3e50",
+    size = 3.2,
+    fontface = "bold"
+  ) +
+  scale_fill_manual(values = error_colors) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(
+    title = "🎯 Distribution of Perceptual Errors",
+    subtitle = "Comprehensive taxonomy of social perception mistakes",
+    x = "Error Type",
+    y = "Count",
+    caption = "Green = Accurate perceptions, Orange/Red = False positives/negatives, Purple = Mixed errors"
+  ) +
+  guides(fill = "none") +
+  theme(
+    axis.text.y = element_text(size = 9),
+    plot.title = element_text(color = css_colors["accent"])
+  )
+```
+
+# Analyzing Individual Accuracy
+
+Individual differences in social perception are often more interesting than aggregate patterns. Some people are "social radar" - exceptionally good at reading social networks. Others are "social blind spots" - systematically missing important patterns.
+
+## Tie-Level Accuracy
+
+This analysis breaks down accuracy into four key measures, distinguishing between different types of relationships and different types of correct judgments.
+
+### The Four Accuracy Measures
+
+1. **True Positive (Ego)**: Correctly identifying ties that involve the perceiver
+   - "I correctly know who I'm connected to"
+   - High scores suggest good self-awareness
+
+2. **True Negative (Ego)**: Correctly identifying non-ties that involve the perceiver  
+   - "I correctly know who I'm NOT connected to"
+   - High scores suggest realistic self-assessment
+
+3. **True Positive (Alter)**: Correctly identifying ties between other people
+   - "I correctly know who else is connected"
+   - High scores suggest good social observation skills
+
+4. **True Negative (Alter)**: Correctly identifying non-ties between other people
+   - "I correctly know who else is NOT connected"  
+   - High scores suggest avoiding false gossip/assumptions
+
+### Why This Decomposition Matters
+
+**Ego vs. Alter Accuracy:**
+- People are typically more accurate about their own relationships (ego) than others' relationships (alter)
+- But some individuals are better "social observers" and excel at alter accuracy
+- The ratio can reveal whether someone is self-focused vs. socially aware
+
+**True Positive vs. True Negative Accuracy:**
+- True positive accuracy: "Am I good at spotting connections?"
+- True negative accuracy: "Am I good at recognizing when there's no connection?"
+- Different cognitive processes may underlie these two abilities
+
+Understanding individual differences in perception accuracy is crucial:
+
+```{r tie-accuracy}
+# Compute tie-level accuracy for each individual
+accuracy <- tie_level_accuracy(graph)
+print(accuracy)
+
+# Reshape data for visualization
+# Convert to regular data frame first to avoid class conflicts
+accuracy_df <- accuracy[, names(accuracy)]  # Strip custom class
+class(accuracy_df) <- "data.frame"
+
+accuracy_long <- accuracy_df %>%
+  select(-k) %>%
+  tidyr::pivot_longer(
+    everything(),
+    names_to = "measure",
+    values_to = "probability"
+  ) %>%
+  mutate(
+    measure_clean = case_when(
+      measure == "p_0_ego" ~ "True Negative (Ego)",
+      measure == "p_1_ego" ~ "True Positive (Ego)", 
+      measure == "p_0_alter" ~ "True Negative (Alter)",
+      measure == "p_1_alter" ~ "True Positive (Alter)"
+    )
+  )
+
+# Create color palette for accuracy measures
+accuracy_colors <- c(
+  "True Negative (Ego)" = "#3498db",     # Blue
+  "True Positive (Ego)" = "#2980b9",     # Dark blue  
+  "True Negative (Alter)" = "#e74c3c",   # Red
+  "True Positive (Alter)" = "#c0392b"    # Dark red
+)
+
+# Visualize accuracy measures
+p1 <- ggplot(accuracy_long, aes(x = measure_clean, y = probability)) +
+  geom_violin(
+    aes(fill = measure_clean),
+    alpha = 0.7,
+    trim = FALSE,
+    scale = "width"
+  ) +
+  geom_boxplot(
+    width = 0.2,
+    alpha = 0.8,
+    outlier.alpha = 0.6,
+    outlier.size = 1.5
+  ) +
+  geom_jitter(
+    width = 0.15, 
+    alpha = 0.6, 
+    size = 2,
+    color = "#2c3e50"
+  ) +
+  scale_fill_manual(values = accuracy_colors) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "🎯 Individual-Level Accuracy Rates",
+    subtitle = "How well do people perceive different types of relationships?",
+    x = "Accuracy Measure",
+    y = "Accuracy Rate (%)",
+    caption = "Blue = Ego relationships (involving self), Red = Alter relationships (between others)"
+  ) +
+  guides(fill = "none") +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 10),
+    plot.title = element_text(color = css_colors["info"]),
+    panel.grid.major.x = element_blank()
+  )
+
+print(p1)
+```
+
+## References
+
+- Krackhardt, D. (1987). Cognitive social structures. *Social Networks*, 9(2), 109-134.
+- Vega Yon, G. G., & Demarais, A. (2022). Exponential random graph models for little networks. *Social Networks*, 70, 181-195.
+
+---
+
+*This vignette was created with `imaginarycss` version `r packageVersion("imaginarycss")`.*
