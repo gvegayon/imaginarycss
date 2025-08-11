@@ -22,10 +22,17 @@ machine precision) before converting. If any values are not integers,
 an error is thrown. For matrices, the dimension attribute is preserved.
 }
 \examples{
-\dontrun{
+# Convert numeric vector to integer
 to_integer(c(1, 2, 3))
-to_integer(matrix(1:6, nrow = 2))
-}
+to_integer(c(1.0, 2.0, 3.0))
+
+# Convert matrix to integer
+mat <- matrix(c(1, 0, 1, 0), nrow = 2)
+to_integer(mat)
+
+# Example with adjacency matrix
+adj_mat <- matrix(c(0, 1, 0, 1, 0, 1, 0, 1, 0), nrow = 3)
+to_integer(adj_mat)
 
 }
 \keyword{internal}

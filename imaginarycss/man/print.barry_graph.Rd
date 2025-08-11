@@ -17,3 +17,23 @@ Invisibly returns the input object. Called for its side effect of printing.
 \description{
 Print method for barry_graph objects.
 }
+\examples{
+# Create a simple network example
+net1 <- matrix(c(0, 1, 0,
+                 1, 0, 1,
+                 0, 1, 0), nrow = 3, byrow = TRUE)
+
+net2 <- matrix(c(0, 1, 1,
+                 1, 0, 0,
+                 1, 0, 0), nrow = 3, byrow = TRUE)
+
+# Create barry graph
+graph <- new_barry_graph(list(net1, net2))
+
+# Print the graph (shows summary information)
+print(graph)
+
+# The print method is called automatically
+graph
+
+}
