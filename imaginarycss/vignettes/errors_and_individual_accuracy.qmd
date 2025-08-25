@@ -8,6 +8,41 @@ vignette: >
   %\VignetteEngine{quarto::format}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r}
+#| label: setup
+```{r load-package}
+library(imaginarycss)
+library(ggplot2)
+library(dplyr)
+library(viridis)
+
+# Set a beautiful theme for all plots
+theme_set(theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", color = "#2c3e50"),
+    plot.subtitle = element_text(size = 12, color = "#7f8c8d"),
+    axis.title = element_text(size = 11, color = "#34495e"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "#ecf0f1", size = 0.5),
+    legend.title = element_text(size = 10, face = "bold"),
+    plot.background = element_rect(fill = "#ffffff", color = NA),
+    panel.background = element_rect(fill = "#ffffff", color = NA)
+  ))
+
+# Define a beautiful color palette
+css_colors <- c(
+  primary = "#3498db",
+  secondary = "#e74c3c", 
+  accent = "#9b59b6",
+  success = "#27ae60",
+  warning = "#f39c12",
+  info = "#17a2b8",
+  light = "#95a5a6",
+  dark = "#2c3e50"
+)
+```
+
 # Analyzing Perceptual Errors
 
 Understanding how and why people misperceive social networks is at the heart of CSS analysis. The `imaginarycss` package provides several sophisticated measures to quantify different types of perceptual errors.
@@ -28,6 +63,28 @@ Reciprocity - whether relationships are mutual - is a fundamental property of so
 - **Social Expectations**: We expect important relationships to be reciprocal
 - **Cognitive Load**: It's easier to remember "A and B are friends" than "A likes B but B doesn't like A"
 - **Projection**: We assume others feel the same way about us as we do about them
+
+We start by generating some artificial data:
+
+```{r basic-example}
+library(imaginarycss)
+
+# Define edges for the true network and one perceived network
+source_ <- c(1, 2, 3, 1) 
+target_ <- c(2, 1, 4, 4)
+
+# Add perceived network (shifted by network size)
+source_ <- c(source_, source_[-1] + 4)
+target_ <- c(target_, target_[-1] + 4)
+
+# Create adjacency matrix
+adjmat <- matrix(0L, nrow = 8, ncol = 8)
+adjmat[cbind(source_, target_)] <- 1L
+
+# Create barry_graph object
+graph <- new_barry_graph(adjmat, n = 4)
+print(graph)
+```
 
 ```{r reciprocity-errors}
 # Compute reciprocity errors
@@ -110,8 +167,8 @@ census_df <- census[, names(census)]  # Strip custom class
 class(census_df) <- "data.frame"
 
 census_df$name_clean <- gsub("\\([0-9]+\\)$", "", census_df$name)
-census_summary <- census_df %>%
-  filter(grepl("^\\([0-9]", name)) %>%
+census_summary <- census_df |>
+  filter(grepl("^\\([0-9]", name)) |>
   mutate(
     error_type = case_when(
       grepl("Accurate null", name_clean) ~ "Accurate Null",
@@ -220,13 +277,13 @@ print(accuracy)
 accuracy_df <- accuracy[, names(accuracy)]  # Strip custom class
 class(accuracy_df) <- "data.frame"
 
-accuracy_long <- accuracy_df %>%
-  select(-k) %>%
+accuracy_long <- accuracy_df |>
+  select(-k) |>
   tidyr::pivot_longer(
     everything(),
     names_to = "measure",
     values_to = "probability"
-  ) %>%
+  ) |>
   mutate(
     measure_clean = case_when(
       measure == "p_0_ego" ~ "True Negative (Ego)",
