@@ -37,6 +37,7 @@ Organizational advice networks present unique perceptual challenges:
 
 ```{r krackhardt-setup, eval=FALSE}
 # Load the actual Krackhardt data
+library(imaginarycss)
 data(krack_advice)
 data(krack_attributes)
 
