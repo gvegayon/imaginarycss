@@ -1,9 +1,7 @@
+# .github/workflows/R-CMD-check.yml
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-#
-# NOTE: This workflow is overkill for most R packages and
-# check-standard.yaml is likely a better choice.
-# usethis::use_github_action("check-standard") will install it.
+
 on:
   push:
     branches: [main, master]
@@ -16,10 +14,8 @@ env:
   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
-
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
@@ -42,6 +38,7 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      # Quarto CLI for .qmd vignettes
       - uses: quarto-dev/quarto-actions/setup@v2
 
       - uses: r-lib/actions/setup-r@v2
@@ -50,12 +47,18 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # UPDATED: install deps needed for check + vignettes + pkgdown
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::quarto
+            any::pkgdown
+            local::.
           needs: check
           working-directory: imaginarycss
 
+      # Linux release: stricter flags and separate step
       - uses: r-lib/actions/check-r-package@v2
         if: ${{ matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release' }}
         with:
@@ -66,6 +69,7 @@ jobs:
           error-on: '"warning"'
           working-directory: imaginarycss
 
+      # All other matrix entries
       - uses: r-lib/actions/check-r-package@v2
         if: ${{ matrix.config.os != 'ubuntu-latest' || matrix.config.r != 'release' }}
         with:
@@ -75,6 +79,7 @@ jobs:
           error-on: '"warning"'
           working-directory: imaginarycss
 
+      # Build a source tarball on Ubuntu (release/devel) and upload as artifact
       - name: Build the package
         if: ${{ matrix.config.os == 'ubuntu-latest' && (matrix.config.r == 'release' || matrix.config.r == 'devel') }}
         run: R CMD build .

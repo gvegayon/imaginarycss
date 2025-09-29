@@ -22,12 +22,6 @@ krack_advice
 Advice-seeking relationships among 21 managers in a high-tech company.
 Data represents who seeks advice from whom (directed network).
 }
-\examples{
-data(krack_advice)
-# Convert to edgelist (only existing ties)
-advice_edges <- krack_advice[krack_advice$value == 1, c("from", "to")]
-head(advice_edges)
-}
 \references{
 Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
 }

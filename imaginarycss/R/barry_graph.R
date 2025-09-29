@@ -14,6 +14,7 @@
 #' machine precision) before converting. If any values are not integers,
 #' an error is thrown. For matrices, the dimension attribute is preserved.
 #' 
+#' @noRd
 #' @examples
 #' \dontrun{
 #' to_integer(c(1, 2, 3))

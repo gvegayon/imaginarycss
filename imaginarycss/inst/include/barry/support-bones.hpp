@@ -63,6 +63,8 @@ private:
     Rules<Array_Type,Data_Rule_Type> *       rules;      ///< Vector of static rules (cells to iterate).
     Rules<Array_Type,Data_Rule_Dyn_Type> *   rules_dyn;  ///< Vector of dynamic rules (to include/exclude a realizaton).
     
+    size_t iter_counter = 0u; ///< Number of iterations (internal use only).
+
 public:
     
     size_t N, M;
@@ -72,9 +74,9 @@ public:
     size_t max_num_elements = BARRY_MAX_NUM_ELEMENTS;
     
     // Temp variables to reduce memory allocation
-    std::vector< double >                current_stats;
-    std::vector< size_t >                coordinates_free;
-    std::vector< size_t >                coordinates_locked;
+    std::vector< double > current_stats;
+    std::vector< size_t > coordinates_free;
+    std::vector< size_t > coordinates_locked;
     size_t coordiantes_n_free;
     size_t coordiantes_n_locked;
     std::vector< double > change_stats;
@@ -181,7 +183,7 @@ public:
         size_t max_num_elements_ = 0u
     );
     
-    std::vector< double > get_counts() const;
+    const std::vector< double > & get_counts() const;
     std::vector< double > * get_current_stats(); ///< List current statistics.
     void print() const;
     

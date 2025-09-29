@@ -17,16 +17,26 @@
 #include <regex>
 #include <iterator>
 
-#ifdef BARRY_USE_OMP
+#if defined(__OPENMP) || defined(_OPENMP)
 #include <omp.h>
+
+// Set the number of threads to match the number of cores
+// in the machine
+
 #endif
 
 #ifndef BARRY_HPP
 #define BARRY_HPP 
 
+/* Versioning */
 #define BARRY_VERSION_MAYOR 0
-#define BARRY_VERSION_MINOR 1
-#define BARRY_VERSION BARRY_VERSION_MAYOR ## . ## BARRY_VERSION_MINOR
+#define BARRY_VERSION_MINOR 2
+#define BARRY_VERSION_PATCH 0
+#define BARRY_VERSION BARRY_VERSION_MAYOR ## . ## BARRY_VERSION_MINOR ## . ## BARRY_VERSION_PATCH
+
+static const int barry_version_major = BARRY_VERSION_MAYOR;
+static const int barry_version_minor = BARRY_VERSION_MINOR;
+static const int barry_version_patch = BARRY_VERSION_PATCH;
 
 /**
   * @brief barry: Your go-to motif accountant

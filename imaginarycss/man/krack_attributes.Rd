@@ -7,8 +7,11 @@
 \format{
 A data frame with 21 rows and X variables:
 \describe{
-\item{id}{Integer, manager ID (1-21)}
-\item{...}{Add descriptions based on your actual columns}
+\item{ID}{Integer, manager ID (1-21)}
+\item{AGE}{Numeric, age of the manager}
+\item{TENURE}{Numeric, tenure of the manager in the company (in years)}
+\item{LEVEL}{Factor, hierarchical level of the manager (e.g., "Top", "Middle", "Lower")}
+\item{DEPT}{Factor, department of the manager (e.g., "R&D", "Marketing", etc.)}
 }
 }
 \source{
@@ -20,9 +23,5 @@ krack_attributes
 \description{
 Node attributes for the 21 managers in Krackhardt's high-tech company study.
 Contains demographic and organizational information for each manager.
-}
-\examples{
-data(krack_attributes)
-head(krack_attributes)
 }
 \keyword{datasets}

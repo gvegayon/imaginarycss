@@ -174,3 +174,4 @@ fi
 AC_SUBST([OPENMP_FLAG], ["${openmp_flag}"])
 AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
+

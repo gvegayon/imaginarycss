@@ -1,5 +1,5 @@
-VERSION:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Vers", x)]))')
-PKGNAME:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\s*", "", x[grepl("^Package", x)]))')
+VERSION:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\\\s*", "", x[grepl("^Vers", x)]))')
+PKGNAME:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\\\s*", "", x[grepl("^Package", x)]))')
 
 .PHONY: build
 ${PKGNAME}_${VERSION}.tar.gz: R/* src/*.cpp inst/include/barry/** man
@@ -21,16 +21,16 @@ profile: install
 	R --debugger=valgrind --debugger-args='--tool=cachegrind --cachegrind-out-file=test.cache.out'
 
 update:
-	rsync -av ~/Documents/development/barry/include/barry inst/include
+	rsync -av ../../barry/include/barry inst/include && \
+	rm -rf inst/include/barry/models
 
 update-css:
-	rsync -av ~/Documents/development/barry/include/barry/counters/network-css.hpp inst/include/barry/counters
+	rsync -av ../../barry/include/barry/counters/network-css.hpp inst/include/barry/counters
 
 .PHONY: man docker
 
 man: R/* 
-	Rscript --vanilla -e 'Rcpp::compileAttributes(verbose = TRUE)' & \
-		Rscript --vanilla -e 'roxygen2::roxygenize()' 
+	Rscript -e 'devtools::document()' 
 
 
 

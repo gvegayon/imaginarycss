@@ -6,3 +6,4 @@
 # R build artifacts
 *.tar.gz
 *.Rcheck/
+.vscode

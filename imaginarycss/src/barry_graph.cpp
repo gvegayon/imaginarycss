@@ -52,7 +52,7 @@ int print_barry_graph(SEXP x) {
     n
   ); 
 
-  ptr->print_n(10u, 10u);
+  ptr->print_n(10u, 10u, "");
   
   return 0;
   

@@ -2,16 +2,19 @@ url: https://gvegayon.github.io/imaginary-structures
 
 template:
   bootstrap: 5
-
+  
 home:
   title: "Imaginary CSS Structures"
   description: >
     Tools for measuring and testing imaginary cognitive social structure (CSS) motifs
 
+build:
+  bootstrap: true
+  
 articles:
-  - title: "Getting started"
-    navbar: ~
-    contents:
-      - intro
-      
-      
+- title: "Vignettes" 
+  contents:
+  - Advanced-analysis
+  - intro-basics
+  - real-world-example
+  - errors-and-individual-accuracy

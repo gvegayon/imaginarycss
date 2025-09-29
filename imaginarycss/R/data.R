@@ -12,11 +12,6 @@
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
 #' @references 
 #' Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-#' @examples
-#' data(krack_advice)
-#' # Convert to edgelist (only existing ties)
-#' advice_edges <- krack_advice[krack_advice$value == 1, c("from", "to")]
-#' head(advice_edges)
 "krack_advice"
 
 #' Krackhardt High-Tech Managers Friendship Network
@@ -54,11 +49,29 @@
 #'
 #' @format A data frame with 21 rows and X variables:
 #' \describe{
-#'   \item{id}{Integer, manager ID (1-21)}
-#'   \item{...}{Add descriptions based on your actual columns}
+#'   \item{ID}{Integer, manager ID (1-21)}
+#'   \item{AGE}{Numeric, age of the manager}
+#'   \item{TENURE}{Numeric, tenure of the manager in the company (in years)}
+#'   \item{LEVEL}{Factor, hierarchical level of the manager (e.g., "Top", "Middle", "Lower")}
+#'   \item{DEPT}{Factor, department of the manager (e.g., "R&D", "Marketing", etc.)}
 #' }
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-#' @examples
-#' data(krack_attributes)
-#' head(krack_attributes)
 "krack_attributes"
+
+#' Krackhardt Friendship Network Perception Errors
+#'
+#' Individual perceptions of the Krackhardt friendship network containing
+#' systematic perception errors and biases.
+#'
+#' @format A list of 21 matrices (21x21 each) representing individual perceptions
+#' @source Generated perception errors based on Krackhardt friendship data
+"krack_friendship_perceptions"
+
+#' Krackhardt Advice Network Perception Errors  
+#'
+#' Individual perceptions of the Krackhardt advice network containing
+#' systematic perception errors and biases.
+#'
+#' @format A list of 21 matrices (21x21 each) representing individual perceptions
+#' @source Generated perception errors based on Krackhardt advice data
+"krack_advice_perceptions"
