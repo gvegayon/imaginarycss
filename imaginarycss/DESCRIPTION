@@ -1,12 +1,16 @@
 Package: imaginarycss
-Version: 0.0-9000
+Version: 0.1.0
 Title: Imaginary CSS Structures
 Description: Tools for measuring and testing imaginary cognitive social structure (CSS) motifs.
 URL: https://gvegayon.github.io/imaginary-structures
 BugReports: https://github.com/gvegayon/imaginary-structures/issues
 Authors@R: c(
   person(
-    "George", "Vega Yon", role=c("aut","cre"), email="g.vegayon@gmail.com",
+    "Sima", "Najafzadehkhoei", role=c("aut","cre"), email="sima.njf@utah.edu",
+    comment = c(ORCID = "0009-0002-6253-2910")
+  ),
+  person(
+    "George", "Vega Yon", role=c("aut"), email="g.vegayon@gmail.com",
     comment = c(ORCID = "0000-0002-3171-0844")
     ),
   person(
@@ -18,7 +22,7 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-LinkingTo: Rcpp
+LinkingTo: Rcpp, barry
 Imports: 
     Rcpp,
     stats
@@ -36,3 +40,4 @@ Suggests:
 Depends: 
     R (>= 4.0.0)
 VignetteBuilder: quarto
+Remotes: USCBiostats/barryr

@@ -1,5 +1,5 @@
 #include <Rcpp.h>
-#include "barry/barry.hpp"
+#include <barry/barry.hpp>
 using namespace Rcpp;
 
 // #include "geese-utils.h"

@@ -51,6 +51,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
+            github::USCBiostats/barryr
             any::rcmdcheck
             any::quarto
             any::pkgdown
