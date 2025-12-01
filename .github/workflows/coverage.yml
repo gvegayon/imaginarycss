@@ -24,7 +24,6 @@ jobs:
         with:
           extra-packages: |
             any::covr
-            github::USCBiostats/barryr
           needs: check
           working-directory: imaginarycss
 
