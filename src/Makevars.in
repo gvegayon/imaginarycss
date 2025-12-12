@@ -1,0 +1,3 @@
+PKG_LIBS = @OPENMP_FLAG@
+PKG_CXXFLAGS=@OPENMP_FLAG@ -I../inst/include/ -Dprintf_barry=Rprintf #-g  -DBARRY_DEBUG_LEVEL=2
+#CXXFLAGS=-O3 -Wall -pedantic

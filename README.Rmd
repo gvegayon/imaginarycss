@@ -1,0 +1,160 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# imaginarycss
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of imaginarycss is to ...
+
+## Installation
+
+You can install the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("gvegayon/imaginarycss")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(imaginarycss)
+
+source_ <- c(1, 2, 3, 1) 
+target_ <- c(2, 1, 4, 4)
+
+source_ <- c(source_, source_[-1] + 4)
+target_ <- c(target_, target_[-1] + 4)
+
+adjmat <- matrix(0L, nrow = 8, ncol = 8)
+adjmat[cbind(source_, target_)] <- 1L
+
+graph <- new_barry_graph(adjmat, n = 4)
+graph
+
+# These are two attributes that are part of the barry_graph object
+attr(graph, "endpoints")
+attr(graph, "netsize")
+
+count_recip_errors(graph)
+```
+
+```{r example-krackhardt}
+krack_data <- read.csv("data-raw/advice_nets.csv")
+krack_data <- as.matrix(krack_data)
+n          <- 21
+
+krack_adjmat <- matrix(0L, nrow = n * 22, ncol = n * 22)
+krack_adjmat[krack_data] <- 1L
+
+graph <- new_barry_graph(
+  krack_adjmat,
+  n = n
+  )
+
+ans <- count_recip_errors(graph)
+head(ans)
+```
+
+Another example passing a list
+
+```{r}
+library(network)
+library(ergmito)
+knet <- as.network(krack_adjmat)
+knet %v% "id" <- rep(0:n, each = n)
+
+netlist <- splitnetwork(knet, "id")
+netlist <- lapply(netlist, as.matrix)
+
+graph2 <- new_barry_graph(netlist)
+
+all(barray_to_edgelist(graph2) ==
+  barray_to_edgelist(graph))
+```
+
+Now checking that none of these coincide completely
+
+```{r}
+# Removing the network id
+ans$name <- gsub("\\([0-9]+\\)$", "", ans$name)
+```
+
+Checking out the distribution
+
+```{r dist}
+library(ggplot2)
+
+# keeping the onces from the census only
+ans <- subset(ans, grepl("^\\([0-9]", name))
+
+ggplot(data = ans, aes(y = value)) +
+  geom_histogram() + 
+  facet_wrap(vars(name)) +
+  coord_flip() +
+  labs(title = "Distribution of type of errors")
+```
+
+
+Checking the tie level accuracy
+
+```{r tie-accuracy}
+taccuracy <- tie_level_accuracy(graph)
+boxplot(
+  taccuracy[,-1],
+  main = "Individual level true positive and true negative rates",
+  ylab = "Probability"
+  )# Keeping only the ones from the census
+
+# Sampling and using that to generate a new barray graph
+graph_sampled <- new_barry_graph(
+  sample_css_network(graph)
+)
+
+microbenchmark::microbenchmark(
+  sample_css_network(graph)  
+)
+
+# Retrieving 1000 samples
+set.seed(331)
+samp <- replicate(n = 100, sample_css_network(graph), simplify = FALSE)
+census <- lapply(samp, \(net) {
+  count_imaginary_census(new_barry_graph(net))
+})
+```
+
+## Self perception
+
+We can also separate the counts as a function of whether the perceiver is looking
+into all ties, only ties including them, or only ties not including them.
+
+```{r self-perception}
+census_all            <- count_imaginary_census(graph, counter_type = 0)
+census_perceiver_only <- count_imaginary_census(graph, counter_type = 1)
+census_no_perceiver   <- count_imaginary_census(graph, counter_type = 2)
+
+# Should be zero
+which_not <- census_all$value -
+  (census_perceiver_only$value + census_no_perceiver$value)
+
+length(census_all$name[which(which_not != 0)]) == 0L
+```
+
+[![pkgdown site](https://img.shields.io/badge/pkgdown-site-blue.svg)](https://gvegayon.github.io/imaginary-structures/)
+

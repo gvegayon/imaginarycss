@@ -51,13 +51,11 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            github::USCBiostats/barryr
             any::rcmdcheck
             any::quarto
             any::pkgdown
             local::.
           needs: check
-          working-directory: imaginarycss
 
       # Linux release: stricter flags and separate step
       - uses: r-lib/actions/check-r-package@v2
@@ -68,7 +66,6 @@ jobs:
           upload-results: false
           check-dir: '"check"'
           error-on: '"warning"'
-          working-directory: imaginarycss
 
       # All other matrix entries
       - uses: r-lib/actions/check-r-package@v2
@@ -78,17 +75,15 @@ jobs:
           upload-results: false
           check-dir: '"check"'
           error-on: '"warning"'
-          working-directory: imaginarycss
 
       # Build a source tarball on Ubuntu (release/devel) and upload as artifact
       - name: Build the package
         if: ${{ matrix.config.os == 'ubuntu-latest' && (matrix.config.r == 'release' || matrix.config.r == 'devel') }}
         run: R CMD build .
-        working-directory: imaginarycss
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.config.os == 'ubuntu-latest' && (matrix.config.r == 'release' || matrix.config.r == 'devel') }}
         with:
           name: imaginarycss-built-package-${{ matrix.config.os }}-${{ matrix.config.r }}
-          path: imaginarycss/imaginarycss_*.tar.gz
+          path: imaginarycss_*.tar.gz
           retention-days: 7

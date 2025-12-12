@@ -49,19 +49,17 @@ jobs:
             any::quarto
             local::.
           needs: website
-          working-directory: imaginarycss
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
-        working-directory: imaginarycss
 
       # Upload artifact for GitHub Pages deployment (only for pushes to main/master)
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: actions/upload-pages-artifact@v3
         with:
-          path: imaginarycss/docs
+          path: docs
 
       # Upload artifact for PR preview (only for pull requests)
       - name: Upload PR artifact
@@ -69,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pkgdown-site
-          path: imaginarycss/docs
+          path: docs
 
       # Post comment with link to artifact on PRs
       - name: Post artifact link to PR

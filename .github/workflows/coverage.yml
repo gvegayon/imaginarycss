@@ -25,7 +25,6 @@ jobs:
           extra-packages: |
             any::covr
           needs: check
-          working-directory: imaginarycss
 
       - name: Running coverage
         run: |
