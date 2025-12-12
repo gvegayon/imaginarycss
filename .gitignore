@@ -1,9 +1,5 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-
-# R build artifacts
-*.tar.gz
-*.Rcheck/
+docs
+inst/doc
+/doc/
+/Meta/
 .vscode
