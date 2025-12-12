@@ -37,6 +37,5 @@ jobs:
             token = Sys.getenv("CODECOV_TOKEN")
             )
         shell: Rscript {0}
-        working-directory: imaginarycss
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
