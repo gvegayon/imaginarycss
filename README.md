@@ -1,27 +1,81 @@
 
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# imaginarycss
+# imaginarycss: Tools for Studying Imaginary Cognitive Social Structure
 
 <!-- badges: start -->
+
+[![CRAN status](https://www.r-pkg.org/badges/version/imaginarycss)](https://CRAN.R-project.org/package=imaginarycss)
+[![R-CMD-check](https://github.com/gvegayon/imaginarycss/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/gvegayon/imaginarycss/actions/workflows/r-cmd-check.yml)
+[![CRANlogs downloads](https://cranlogs.r-pkg.org/badges/grand-total/imaginarycss)](https://cran.r-project.org/package=imaginarycss)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/gvegayon/imaginarycss/blob/master/LICENSE.md)
+[![codecov](https://codecov.io/gh/gvegayon/imaginarycss/graph/badge.svg?token=ZB8FVLI7GN)](https://app.codecov.io/gh/gvegayon/imaginarycss)
+[![status](https://tinyverse.netlify.app/badge//imaginarycss)](https://CRAN.R-project.org/package=imaginarycss)
+
 <!-- badges: end -->
 
-The goal of imaginarycss is to …
+The `imaginarycss` package provides functions to measure and test
+imaginary cognitive social structure (CSS) motifs, which are patterns of
+perceived relationships among individuals in a social network. The
+package includes tools for calculating motif frequencies, comparing
+observed motifs to expected distributions, and visualizing motif
+structures. It implements the methods described in Tanaka and Vega Yon
+(2023) <DOI:10.1016/j.socnet.2023.11.005>.
+
+When using this package, please cite the above article:
+
+``` r
+citation(package = "imaginarycss")
+To cite the original research article where the methods were
+introduced, use:
+
+  Tanaka K, Vega Yon G (2024). "Imaginary Network Motifs: Structural
+  Patterns of False Positives and Negatives in Social Networks."
+  _Social Networks_, *78*, 65-80. doi:10.1016/j.socnet.2023.11.005
+  <https://doi.org/10.1016/j.socnet.2023.11.005>,
+  <https://www.sciencedirect.com/science/article/pii/S0378873323000813>.
+
+And the actual R package:
+
+  Najafzadehkhoei S, Vega Yon G, Tanaka K (2025). _imaginarycss: Tools
+  for Studying Imaginary Cognitive Social Structure_. R package version
+  0.1.0, <https://github.com/gvegayon/imaginarycss>.
+
+To see these entries in BibTeX format, use 'print(<citation>,
+bibtex=TRUE)', 'toBibtex(.)', or set
+'options(citation.bibtex.max=999)'.
+```
 
 ## Installation
 
-You can install the released version of imaginarycss from
-[CRAN](https://CRAN.R-project.org) with:
+## Installation
+
+You can install the development version of `imaginarycss` from
+[GitHub](https://github.com/) with:
+
+``` r
+devtools::install_github("gvegayon/imaginarycss")
+```
+
+Or from <a href="https://gvegayon.r-universe.dev/"
+target="_blank">R-universe</a> (recommended for the latest development
+version):
+
+``` r
+install.packages(
+  'imaginarycss',
+  repos = c(
+    'https://gvegayon.r-universe.dev',
+    'https://cloud.r-project.org'
+  )
+)
+```
+
+Or from CRAN
 
 ``` r
 install.packages("imaginarycss")
-```
-
-And the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("gvegayon/imaginary-structures")
 ```
 
 ## Example
@@ -77,130 +131,9 @@ count_recip_errors(graph)
 #> 15  0                  (10) Accurate full (0)     0
 ```
 
-``` r
-krack_data <- read.csv("data-raw/advice_nets.csv")
-krack_data <- as.matrix(krack_data)
-n          <- 21
+## Code of Conduct
 
-krack_adjmat <- matrix(0L, nrow = n * 22, ncol = n * 22)
-krack_adjmat[krack_data] <- 1L
-
-graph <- new_barry_graph(
-  krack_adjmat,
-  n = n
-  )
-
-ans <- count_recip_errors(graph)
-head(ans)
-#>   id                                 name value
-#> 1  0 Partially false recip (omission) (0)    25
-#> 2  1 Partially false recip (omission) (1)    78
-#> 3  2 Partially false recip (omission) (2)    52
-#> 4  3 Partially false recip (omission) (3)    63
-#> 5  4 Partially false recip (omission) (4)    56
-#> 6  5 Partially false recip (omission) (5)    56
-```
-
-Another example passing a list
-
-``` r
-library(network)
-#> 
-#> 'network' 1.18.1 (2023-01-24), part of the Statnet Project
-#> * 'news(package="network")' for changes since last version
-#> * 'citation("network")' for citation information
-#> * 'https://statnet.org' for help, support, and other information
-library(ergmito)
-knet <- as.network(krack_adjmat)
-knet %v% "id" <- rep(0:n, each = n)
-
-netlist <- splitnetwork(knet, "id")
-netlist <- lapply(netlist, as.matrix)
-
-graph2 <- new_barry_graph(netlist)
-
-all(barray_to_edgelist(graph2) ==
-  barray_to_edgelist(graph))
-#> [1] TRUE
-```
-
-Now checking that none of these coincide completely
-
-``` r
-# Removing the network id
-ans$name <- gsub("\\([0-9]+\\)$", "", ans$name)
-```
-
-Checking out the distribution
-
-``` r
-library(ggplot2)
-
-# keeping the onces from the census only
-ans <- subset(ans, grepl("^\\([0-9]", name))
-
-ggplot(data = ans, aes(y = value)) +
-  geom_histogram() + 
-  facet_wrap(vars(name)) +
-  coord_flip() +
-  labs(title = "Distribution of type of errors")
-#> `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-```
-
-<img src="man/figures/README-dist-1.png" width="100%" />
-
-Checking the tie level accuracy
-
-``` r
-taccuracy <- tie_level_accuracy(graph)
-boxplot(
-  taccuracy[,-1],
-  main = "Individual level true positive and true negative rates",
-  ylab = "Probability"
-  )# Keeping only the ones from the census
-```
-
-<img src="man/figures/README-tie-accuracy-1.png" width="100%" />
-
-``` r
-
-# Sampling and using that to generate a new barray graph
-graph_sampled <- new_barry_graph(
-  sample_css_network(graph)
-)
-
-microbenchmark::microbenchmark(
-  sample_css_network(graph)  
-)
-#> Unit: milliseconds
-#>                       expr      min       lq     mean   median       uq
-#>  sample_css_network(graph) 11.25291 11.65259 14.32988 12.15657 16.58535
-#>       max neval
-#>  32.85994   100
-
-# Retrieving 1000 samples
-set.seed(331)
-samp <- replicate(n = 100, sample_css_network(graph), simplify = FALSE)
-census <- lapply(samp, \(net) {
-  count_imaginary_census(new_barry_graph(net))
-})
-```
-
-## Self perception
-
-We can also separate the counts as a function of whether the perceiver
-is looking into all ties, only ties including them, or only ties not
-including them.
-
-``` r
-census_all            <- count_imaginary_census(graph, counter_type = 0)
-census_perceiver_only <- count_imaginary_census(graph, counter_type = 1)
-census_no_perceiver   <- count_imaginary_census(graph, counter_type = 2)
-
-# Should be zero
-which_not <- census_all$value -
-  (census_perceiver_only$value + census_no_perceiver$value)
-
-length(census_all$name[which(which_not != 0)]) == 0L
-#> [1] TRUE
-```
+Please note that the imaginarycss project is released with a
+[Contributor Code of
+Conduct](https://gvegayon.github.io/imaginary-structures/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.

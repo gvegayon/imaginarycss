@@ -1,7 +1,7 @@
 Package: imaginarycss
 Version: 0.1.0
-Title: Imaginary CSS Structures
-Description: Tools for measuring and testing imaginary cognitive social structure (CSS) motifs.
+Title: Tools for Studying Imaginary Cognitive Social Structure
+Description: This package provides functions to measure and test imaginary cognitive social structure (CSS) motifs, which are patterns of perceived relationships among individuals in a social network. The package includes tools for calculating motif frequencies, comparing observed motifs to expected distributions, and visualizing motif structures. It implements the methods described in Tanaka and Vega Yon (2023) <DOI:10.1016/j.socnet.2023.11.005>.
 URL: https://gvegayon.github.io/imaginary-structures
 BugReports: https://github.com/gvegayon/imaginary-structures/issues
 Authors@R: c(

@@ -1,15 +1,10 @@
-VERSION:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\\\s*", "", x[grepl("^Vers", x)]))')
-PKGNAME:=$(shell Rscript -e 'x<-readLines("DESCRIPTION");cat(gsub(".+[:]\\\\s*", "", x[grepl("^Package", x)]))')
 
-.PHONY: build
-${PKGNAME}_${VERSION}.tar.gz: R/* src/*.cpp inst/include/barry/** man
-	$(MAKE) clean ;\
-	       	Rscript -e 'Rcpp::compileAttributes();roxygen2::roxygenize()' && \
-		R CMD build .	
-build: ${PKGNAME}_${VERSION}.tar.gz
+install: 
+	Rscript --vanilla -e 'devtools::install()'
 
-install: build
-	R CMD INSTALL ${PKGNAME}_${VERSION}.tar.gz
+README.md: README.qmd
+	quarto render README.qmd
+
 check: build
 	R CMD check --as-cran ${PKGNAME}_${VERSION}.tar.gz
 
@@ -27,13 +22,7 @@ update:
 update-css:
 	rsync -av ../../barry/include/barry/counters/network-css.hpp inst/include/barry/counters
 
-.PHONY: man docker
+docs:
+	Rscript --vanilla -e 'devtools::document()'
 
-man: R/* 
-	Rscript -e 'devtools::document()' 
-
-
-
-.PHONY: clean
-clean:
-	rm -rf src/*.o; rm -rf src/*.a; rm -f ${PKGNAME}_${VERSION}.tar.gz
+.PHONY: install check debug profile update update-css docs README.md

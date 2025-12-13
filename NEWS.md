@@ -1,3 +1,3 @@
-# imaginarycss 0.1.0 (dev)
+# imaginarycss 0.1.0
 
-* First public release of `imaginarycss` on GitHub.
+* First CRAN release.

@@ -21,3 +21,5 @@
 ^_pkgdown\.ya?ml$
 ^paper$
 ^.gitattributes$
+^LICENSE\.md$
+^CODE_OF_CONDUCT\.md$
