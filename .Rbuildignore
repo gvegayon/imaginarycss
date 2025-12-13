@@ -1,0 +1,25 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+\.vscode$
+^Makefile$
+^README\.html$
+^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^doc$
+^Meta$
+
+
+# GitHub stuff
+^\.devcontainer$
+^.github$
+
+^Makefile$
+^README\.Rmd$
+^_pkgdown\.ya?ml$
+^paper$
+^.gitattributes$
+^LICENSE\.md$
+^CODE_OF_CONDUCT\.md$
