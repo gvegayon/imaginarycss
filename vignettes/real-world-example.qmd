@@ -2,7 +2,6 @@
 title: "Real-world example of imaginarycss"
 author: "Sima Najafzadehkhoei"
 date: today
-format: html
 vignette: >
   %\VignetteIndexEntry{Real-world example of imaginarycss}
   %\VignetteEngine{quarto::format}
