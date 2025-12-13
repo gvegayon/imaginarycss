@@ -121,9 +121,3 @@ cat(
 )
 ```
 
-## References
-
-- Krackhardt, D. (1987). Cognitive social structures. *Social Networks*, 9(2), 109–134.  
-- Vega Yon, G. G., & Demarais, A. (2022). Exponential random graph models for little networks. *Social Networks*, 70, 181–195.
-
-*Built with `imaginarycss` version `r packageVersion("imaginarycss")`.*

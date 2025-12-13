@@ -4,7 +4,7 @@ author: "Sima Najafzadehkhoei"
 date: today
 vignette: >
   %\VignetteIndexEntry{Network Perception Analysis}
-  %\VignetteEngine{quarto::format}
+  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
 
