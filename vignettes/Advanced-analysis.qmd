@@ -120,18 +120,19 @@ comparing the observed count to the null distribution.
 ```{r significance}
 test_motifs <- function(observed_agg, null_matrix) {
   motifs   <- names(observed_agg)
+  obs      <- as.numeric(observed_agg)   # plain vector for recycling
   null_mat <- null_matrix[motifs, , drop = FALSE]
+  null_mu  <- rowMeans(null_mat)
+  null_sd  <- apply(null_mat, 1, sd)
   data.frame(
     motif     = motifs,
-    observed  = as.integer(observed_agg),
-    null_mean = round(rowMeans(null_mat), 1),
-    null_sd   = round(apply(null_mat, 1, sd), 2),
-    z_score   = round(
-      (observed_agg - rowMeans(null_mat)) / apply(null_mat, 1, sd), 2
-    ),
+    observed  = as.integer(obs),
+    null_mean = round(null_mu, 1),
+    null_sd   = round(null_sd, 2),
+    z_score   = round((obs - null_mu) / null_sd, 2),
     p_value   = round(2 * pmin(
-      rowMeans(null_mat <= observed_agg),
-      rowMeans(null_mat >= observed_agg)
+      rowMeans(null_mat <= obs),
+      rowMeans(null_mat >= obs)
     ), 4),
     row.names = NULL,
     stringsAsFactors = FALSE
