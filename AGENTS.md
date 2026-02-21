@@ -5,7 +5,7 @@
 `imaginarycss` is an R package for analyzing Cognitive Social Structures
 (CSS). It implements the methods described in Tanaka and Vega Yon (2023),
 "Imaginary Structures as Evidence of Social Cognition"
-(doi: 10.1016/j.socnet.2023.11.005).
+(doi: [10.1016/j.socnet.2023.11.005](https://doi.org/10.1016/j.socnet.2023.11.005)).
 
 ## Development Principles
 
