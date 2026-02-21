@@ -10,156 +10,143 @@ vignette: >
 
 ```{r setup}
 library(imaginarycss)
-library(ggplot2)
-library(dplyr)
-library(viridis)
-
-# Theme and colors
-theme_set(theme_minimal(base_size = 12) +
-  theme(plot.title = element_text(size = 16, face = "bold", color = "#2c3e50"),
-        plot.subtitle = element_text(size = 12, color = "#7f8c8d"),
-        panel.grid.minor = element_blank()))
-
-css_colors <- c(primary = "#3498db", secondary = "#e74c3c", accent = "#9b59b6", 
-                success = "#27ae60", warning = "#f39c12", info = "#17a2b8")
 ```
 
-# Analyzing Perceptual Errors
+# Perceptual Error Analysis
 
-Understanding social network misperceptions through sophisticated error measures.
+When people report how they see a social network, their perceptions
+systematically deviate from the true structure. The `imaginarycss` package
+classifies these deviations using two complementary tools:
 
-## Data Setup and Reciprocity Errors
+- **`count_recip_errors()`** -- counts reciprocity-related misperceptions.
+- **`count_imaginary_census()`** -- performs the full 10-category imaginary
+  census introduced in Tanaka & Vega Yon (2023).
+
+## Setup: A Small Example Network
+
+We use a four-node network with one perceiver to illustrate the key ideas.
 
 ```{r basic-setup}
-# Generate artificial data
+# Build a true network and one perceiver's view
 source_ <- c(1, 2, 3, 1, c(1, 2, 3) + 4)
 target_ <- c(2, 1, 4, 4, c(2, 1, 4) + 4)
 
 adjmat <- matrix(0L, nrow = 8, ncol = 8)
 adjmat[cbind(source_, target_)] <- 1L
 graph <- new_barry_graph(adjmat, n = 4)
+```
 
-# Reciprocity errors
+## Reciprocity Errors
+
+Reciprocity errors capture how often a perceiver incorrectly sees a directed
+tie as mutual (or vice versa). Higher counts indicate a stronger tendency to
+assume reciprocity where none exists.
+
+```{r recip-errors, fig.height=4, fig.width=6}
 recip_errors <- count_recip_errors(graph)
-ggplot(recip_errors, aes(x = reorder(name, value), y = value)) +
-  geom_col(fill = css_colors["primary"], alpha = 0.8, width = 0.7) +
-  geom_text(aes(label = value), hjust = -0.2, color = "#2c3e50", size = 3.5, fontface = "bold") +
-  coord_flip() + scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
-  labs(title = "🔄 Reciprocity Errors by Type", x = "Error Type", y = "Count")
+barplot(
+  recip_errors$value,
+  names.arg = recip_errors$name,
+  horiz = TRUE, las = 1,
+  col = "steelblue",
+  xlab = "Count",
+  main = "Reciprocity Errors by Type"
+)
 ```
 
 ## Imaginary Census
 
-Comprehensive classification of all perceptual errors across 10 categories.
+The imaginary census classifies every perceiver--dyad combination into one of
+ten categories that capture the full spectrum from accurate perception to
+complete misperception (see `?count_imaginary_census` for definitions).
 
-```{r census}
+```{r census, fig.height=5, fig.width=7}
 census <- count_imaginary_census(graph)
-census_df <- census[, names(census)]
-class(census_df) <- "data.frame"
 
-census_summary <- census_df |>
-  filter(grepl("^\\([0-9]", name)) |>
-  mutate(error_type = case_when(
-    grepl("Accurate null", name) ~ "Accurate Null",
-    grepl("Partial false positive \\(null\\)", name) ~ "Partial FP (Null)",
-    grepl("Complete false positive \\(null\\)", name) ~ "Complete FP (Null)",
-    grepl("Partial false negative \\(assym\\)", name) ~ "Partial FN (Asymm)",
-    grepl("Accurate assym", name) ~ "Accurate Asymm",
-    grepl("Mixed assym", name) ~ "Mixed Asymm",
-    grepl("Partial false positive \\(assym\\)", name) ~ "Partial FP (Asymm)",
-    grepl("Complete false negative \\(full\\)", name) ~ "Complete FN (Full)",
-    grepl("Partial false negative \\(full\\)", name) ~ "Partial FN (Full)",
-    grepl("Accurate full", name) ~ "Accurate Full",
-    TRUE ~ "Other"
-  ))
+# Aggregate by motif type
+motif_type <- gsub("\\([0-9]+\\)\\s*", "", census$name)
+agg <- tapply(census$value, motif_type, sum)
+agg <- sort(agg)
 
-error_colors <- c("Accurate Null" = "#27ae60", "Accurate Asymm" = "#2ecc71", 
-                  "Accurate Full" = "#16a085", "Partial FP (Null)" = "#f39c12",
-                  "Partial FN (Asymm)" = "#e67e22", "Partial FN (Full)" = "#d35400",
-                  "Complete FP (Null)" = "#e74c3c", "Complete FN (Full)" = "#c0392b",
-                  "Partial FP (Asymm)" = "#8e44ad", "Mixed Asymm" = "#9b59b6", "Other" = "#95a5a6")
-
-ggplot(census_summary, aes(x = reorder(error_type, value), y = value)) +
-  geom_col(aes(fill = error_type), alpha = 0.9, width = 0.8) +
-  geom_text(aes(label = ifelse(value > 0, value, "")), hjust = -0.1, size = 3.2, fontface = "bold") +
-  scale_fill_manual(values = error_colors) + coord_flip() +
-  labs(title = "🎯 Distribution of Perceptual Errors", x = "Error Type", y = "Count") +
-  guides(fill = "none")
+par(mar = c(4, 12, 3, 1))
+barplot(
+  agg,
+  horiz = TRUE, las = 1,
+  col = "steelblue",
+  xlab = "Count",
+  main = "Imaginary Census Distribution"
+)
 ```
 
-# Individual Accuracy Analysis
+# Individual Accuracy
 
-Breaking down accuracy into four key measures: ego vs alter relationships, true positives vs negatives.
+The function `tie_level_accuracy()` decomposes each perceiver's accuracy
+into four probabilities:
 
-```{r accuracy}
+| Measure       | Description                                       |
+|---------------|---------------------------------------------------|
+| `p_0_ego`     | P(perceive no tie \| no tie exists) for ego dyads |
+| `p_1_ego`     | P(perceive tie \| tie exists) for ego dyads       |
+| `p_0_alter`   | P(perceive no tie \| no tie exists) for alter dyads |
+| `p_1_alter`   | P(perceive tie \| tie exists) for alter dyads     |
+
+These rates are then used by `sample_css_network()` to generate null
+distributions for hypothesis testing.
+
+```{r accuracy, fig.height=5, fig.width=6}
 accuracy <- tie_level_accuracy(graph)
-accuracy_df <- accuracy[, names(accuracy)]
-class(accuracy_df) <- "data.frame"
+acc_mat <- as.matrix(accuracy[, c("p_0_ego", "p_1_ego", "p_0_alter", "p_1_alter")])
 
-accuracy_long <- accuracy_df |>
-  select(-k) |>
-  tidyr::pivot_longer(everything(), names_to = "measure", values_to = "probability") |>
-  mutate(measure_clean = case_when(
-    measure == "p_0_ego" ~ "True Negative (Ego)",
-    measure == "p_1_ego" ~ "True Positive (Ego)", 
-    measure == "p_0_alter" ~ "True Negative (Alter)",
-    measure == "p_1_alter" ~ "True Positive (Alter)"
-  ))
-
-accuracy_colors <- c("True Negative (Ego)" = "#3498db", "True Positive (Ego)" = "#2980b9",
-                     "True Negative (Alter)" = "#e74c3c", "True Positive (Alter)" = "#c0392b")
-
-ggplot(accuracy_long, aes(x = measure_clean, y = probability)) +
-  geom_violin(aes(fill = measure_clean), alpha = 0.7, trim = FALSE) +
-  geom_boxplot(width = 0.2, alpha = 0.8) +
-  geom_jitter(width = 0.15, alpha = 0.6, size = 2, color = "#2c3e50") +
-  scale_fill_manual(values = accuracy_colors) +
-  scale_y_continuous(labels = scales::percent_format()) +
-  labs(title = "🎯 Individual-Level Accuracy Rates", x = "Accuracy Measure", y = "Accuracy Rate (%)") +
-  guides(fill = "none") + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+boxplot(
+  acc_mat,
+  names = c("TN (Ego)", "TP (Ego)", "TN (Alter)", "TP (Alter)"),
+  ylab = "Probability",
+  main = "Individual-Level Accuracy Rates",
+  col = c("#3498db", "#2980b9", "#e74c3c", "#c0392b"),
+  border = "gray30"
+)
 ```
 
-# Null Models and Statistical Testing
+# Null Model Testing
 
-Generate realistic null distributions using individual accuracy rates.
+Using the individual accuracy rates, `sample_css_network()` generates
+synthetic CSS data that preserves each perceiver's overall error rates but
+randomises which dyads are misperceived. Repeating this many times yields a
+null distribution for any network statistic.
 
-```{r sampling}
-# Sample networks and generate null distribution
+```{r sampling, fig.height=4, fig.width=6}
 set.seed(123)
-sampled_networks <- sample_css_network(graph, keep_baseline = TRUE)
 n_samples <- 100
 
-null_samples <- replicate(n_samples, {
-  sample_css_network(graph, keep_baseline = FALSE)
-}, simplify = FALSE)
-
-null_densities <- sapply(null_samples, function(nets) {
-  if (length(nets) > 0) sum(nets[[1]]) / (4 * 3) else 0
+null_densities <- replicate(n_samples, {
+  nets <- sample_css_network(graph, keep_baseline = FALSE)
+  sum(nets[[1]]) / (4 * 3)
 })
 
-observed_density <- sum(sampled_networks[[2]]) / (4 * 3)
-p_value <- mean(null_densities >= observed_density)
+sampled <- sample_css_network(graph, keep_baseline = TRUE)
+observed_density <- sum(sampled[[2]]) / (4 * 3)
 
-# Visualization
-ggplot(data.frame(density = null_densities), aes(x = density)) +
-  geom_histogram(bins = 25, alpha = 0.8, fill = css_colors["primary"], color = "white") +
-  geom_vline(xintercept = observed_density, color = css_colors["secondary"], linetype = "dashed", size = 1.2) +
-  annotate("label", x = observed_density + 0.02, y = Inf, 
-           label = paste("Observed\n", round(observed_density, 3)), vjust = 1.2, hjust = 0,
-           color = css_colors["secondary"], fill = "white", fontface = "bold") +
-  scale_x_continuous(labels = scales::percent_format()) +
-  labs(title = "📊 Null Distribution of Network Density", 
-       x = "Network Density (%)", y = "Frequency",
-       caption = paste("P-value:", round(p_value, 4), "| Based on", n_samples, "null samples"))
+hist(
+  null_densities,
+  breaks = 15,
+  col = "steelblue",
+  border = "white",
+  main = "Null Distribution of Network Density",
+  xlab = "Density"
+)
+abline(v = observed_density, col = "red", lwd = 2, lty = 2)
+legend("topright",
+  legend = paste("Observed =", round(observed_density, 3)),
+  col = "red", lty = 2, lwd = 2, bty = "n"
+)
 ```
 
-## Key Insights
+## Key Takeaways
 
-- **Reciprocity Errors**: Quantify how people misperceive mutual relationships
-- **Imaginary Census**: 10-category taxonomy of all possible perceptual errors
-- **Individual Accuracy**: Separate measures for ego/alter and positive/negative accuracy
-- **Null Models**: Use individual accuracy rates to generate realistic chance distributions
-
----
-
-*Analysis with `imaginarycss` version `r packageVersion("imaginarycss")`*
+- **Reciprocity errors** quantify how people misperceive mutual relationships.
+- The **imaginary census** provides a fine-grained, 10-category taxonomy of
+  perceptual errors.
+- **Individual accuracy rates** separate ego-involved from alter-only dyads
+  and true positives from true negatives.
+- **Null models** based on these rates let us test whether observed motif
+  counts are more extreme than expected by chance.

@@ -27,16 +27,10 @@ Imports:
     Rcpp,
     stats
 Suggests: 
-    dplyr,
-    ggplot2,
     knitr,
     rmarkdown,
     tinytest,
-    quarto,
-    viridis,
-    tidyr,
-    scales,
-    reshape2
+    quarto
 Depends: 
     R (>= 4.0.0)
 VignetteBuilder: quarto

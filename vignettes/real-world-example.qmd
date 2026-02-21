@@ -1,123 +1,121 @@
 ---
-title: "Real-world example of imaginarycss"
+title: "Real-World Example: Krackhardt Advice Network"
 author: "Sima Najafzadehkhoei"
 date: today
 vignette: >
   %\VignetteIndexEntry{Real-world example of imaginarycss}
-  %\VignetteEngine{quarto::format}
+  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
 
-# Krackhardt advice network (concise demo)
+# Krackhardt Advice Network
 
-```{r}
-# Setup
+This vignette demonstrates a complete `imaginarycss` workflow using the
+classic Krackhardt (1987) dataset of 21 managers in a high-tech company.
+We construct a CSS object from the advice network together with simulated
+perceptual errors, then compute accuracy rates and the imaginary census.
+
+```{r setup}
 library(imaginarycss)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(scales)
-library(reshape2)
-
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width = 7.2, fig.height = 4.4)
-theme_set(theme_minimal(base_size = 13))
 set.seed(42)
 ```
 
-## Data & perceptions
+## Data and Perceptions
 
-```{r}
-# Load Krackhardt advice network and attributes
-data(krack_advice); data(krack_attributes)
+The package ships the advice network as a data frame (`krack_advice`).
+We convert it to an adjacency matrix using base R and then generate
+realistic perception errors driven by three cognitive biases:
 
-# True network
-advice_matrix <- acast(krack_advice, from ~ to, value.var = "value", fill = 0)
-n_people <- nrow(advice_matrix)
+- **Visibility** -- peripheral ties are harder to perceive (false
+  negatives).
+- **Status** -- high-indegree nodes attract spurious perceived ties
+  (false positives).
+- **Reciprocity** -- people tend to assume that observed ties are
+  reciprocated.
 
-# Simple generator of realistic perception errors (status, visibility, reciprocity)
+```{r data}
+data(krack_advice)
+
+# Convert edge-list data frame to adjacency matrix
+n_people <- max(c(krack_advice$from, krack_advice$to))
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krack_advice$from, krack_advice$to)] <- krack_advice$value
+
+# Generate realistic perceptions with three bias mechanisms
 create_realistic_perceptions <- function(true_net) {
-  n <- nrow(true_net); out <- vector("list", n)
-  colsums <- colSums(true_net); highdeg <- colsums > median(colsums)
+  n <- nrow(true_net)
+  out <- vector("list", n)
+  colsums <- colSums(true_net)
+  highdeg <- colsums > median(colsums)
   for (i in seq_len(n)) {
     P <- true_net
     for (j in seq_len(n)) for (k in seq_len(n)) if (i != j && i != k) {
-      if (true_net[j,k] == 1 && runif(1) < 0.20) P[j,k] <- 0                 # visibility FN
-      if (true_net[j,k] == 0 && highdeg[k] && runif(1) < 0.15) P[j,k] <- 1   # status FP
-      if (true_net[j,k] == 1 && true_net[k,j] == 0 && runif(1) < 0.10) P[k,j] <- 1  # reciprocity
+      if (true_net[j, k] == 1 && runif(1) < 0.20) P[j, k] <- 0
+      if (true_net[j, k] == 0 && highdeg[k] && runif(1) < 0.15) P[j, k] <- 1
+      if (true_net[j, k] == 1 && true_net[k, j] == 0 && runif(1) < 0.10) P[k, j] <- 1
     }
-    diag(P) <- 0; out[[i]] <- P
+    diag(P) <- 0
+    out[[i]] <- P
   }
   out
 }
 
 perceived_networks <- create_realistic_perceptions(advice_matrix)
-
-# Build CSS graph: first = true network, then each perceiver's network
 krack_graph <- new_barry_graph(c(list(advice_matrix), perceived_networks))
-attr(krack_graph, "network_type") <- "advice"
-attr(krack_graph, "n_employees")  <- n_people
 ```
 
-## Accuracy & quick summary
+## Individual Accuracy
 
-```{r}
-# Individual accuracy (coerce to plain data.frame for tidy verbs)
+```{r accuracy, fig.height=5, fig.width=6}
 acc <- tie_level_accuracy(krack_graph)
-acc <- acc[, names(acc)]; class(acc) <- "data.frame"
 
-# Summary stats
-summary_stats <- acc |>
-  select(-k) |>
-  summarise(across(everything(), list(mean = mean, sd = sd), na.rm = TRUE))
-summary_stats
+# Summary statistics
+cat("Mean accuracy rates across", nrow(acc), "perceivers:\n")
+cat("  TP (Ego)  :", round(mean(acc$p_1_ego,   na.rm = TRUE), 3), "\n")
+cat("  TN (Ego)  :", round(mean(acc$p_0_ego,   na.rm = TRUE), 3), "\n")
+cat("  TP (Alter):", round(mean(acc$p_1_alter, na.rm = TRUE), 3), "\n")
+cat("  TN (Alter):", round(mean(acc$p_0_alter, na.rm = TRUE), 3), "\n")
+
+acc_mat <- as.matrix(acc[, c("p_0_ego", "p_1_ego", "p_0_alter", "p_1_alter")])
+boxplot(
+  acc_mat,
+  names = c("TN (Ego)", "TP (Ego)", "TN (Alter)", "TP (Alter)"),
+  ylab = "Probability",
+  main = "Individual Accuracy Rates",
+  col = c("#3498db", "#2980b9", "#e74c3c", "#c0392b"),
+  border = "gray30"
+)
 ```
 
-```{r}
-# Plot individual accuracy (TP/TN × Ego/Alter)
-acc_long <- acc |>
-  select(-k) |>
-  pivot_longer(everything(), names_to = "measure", values_to = "p") |>
-  mutate(measure = recode(measure,
-    p_1_ego="TP (Ego)", p_0_ego="TN (Ego)", p_1_alter="TP (Alter)", p_0_alter="TN (Alter)"
-  ),
-  measure = factor(measure, levels = c("TP (Ego)","TN (Ego)","TP (Alter)","TN (Alter)")))
+## Perceptual Structure
 
-ggplot(acc_long, aes(measure, p, fill = measure)) +
-  geom_violin(trim = FALSE, alpha = 0.65) +
-  geom_boxplot(width = 0.18, outlier.alpha = 0.3, color = "gray25") +
-  geom_jitter(width = 0.08, size = 1.2, alpha = 0.5) +
-  scale_y_continuous(labels = percent_format()) +
-  guides(fill = "none") +
-  labs(title = "Individual accuracy", subtitle = "TP/TN × Ego/Alter", x = NULL, y = "Accuracy")
-```
+The imaginary census and reciprocity error counts summarize which types
+of misperception are most prevalent across all perceivers.
 
-## Perceptual structure
-
-```{r}
-# Census and reciprocity error counts
+```{r structure}
 krack_census <- count_imaginary_census(krack_graph)
 krack_recip  <- count_recip_errors(krack_graph)
 
-head(krack_census,5)
-head(krack_recip,5)
+cat("Top imaginary census motifs:\n")
+print(head(krack_census, 5))
+cat("\nReciprocity errors:\n")
+print(head(krack_recip, 5))
 ```
 
-## Quick organizational takeaways
+## Organizational Takeaways
 
-```{r}
-# Basic org metrics
+```{r takeaways}
 density <- sum(advice_matrix) / (n_people * (n_people - 1))
-avg_tp_ego <- mean(acc$p_1_ego, na.rm = TRUE)
+avg_tp  <- mean(acc$p_1_ego, na.rm = TRUE)
+best    <- which.max(acc$p_1_ego)
+worst   <- which.min(acc$p_1_ego)
 
-most_acc <- which.max(acc$p_1_ego)
-least_acc <- which.min(acc$p_1_ego)
-
-cat(
-  "Employees:", n_people,
-  "\nAdvice density:", round(density, 3),
-  "\nAvg TP (Ego):", round(avg_tp_ego, 3),
-  "\nMost accurate perceiver:", most_acc, "(", round(acc$p_1_ego[most_acc], 3), ")",
-  "\nLeast accurate perceiver:", least_acc, "(", round(acc$p_1_ego[least_acc], 3), ")\n"
-)
+cat("Employees:              ", n_people, "\n")
+cat("Advice network density: ", round(density, 3), "\n")
+cat("Avg TP (Ego):           ", round(avg_tp, 3), "\n")
+cat("Most accurate perceiver:", best,
+    "(", round(acc$p_1_ego[best], 3), ")\n")
+cat("Least accurate perceiver:", worst,
+    "(", round(acc$p_1_ego[worst], 3), ")\n")
 ```
 
