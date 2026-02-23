@@ -76,3 +76,6 @@ expect_silent({
 
 # significance column is logical -------------------------------------------------
 expect_true(is.logical(res$results$significant))
+
+# z_scores are always finite (no NaN/Inf from zero-variance motifs) -------------
+expect_true(all(is.finite(res$results$z_score)))

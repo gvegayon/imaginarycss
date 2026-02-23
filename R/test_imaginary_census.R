@@ -110,7 +110,7 @@ test_imaginary_census <- function(
   null_mu  <- rowMeans(null_mat)
   null_sd  <- apply(null_mat, 1, sd)
 
-  z_score <- (obs - null_mu) / null_sd
+  z_score <- ifelse(null_sd > 0, (obs - null_mu) / null_sd, 0)
   p_value <- 2 * pmin(
     rowMeans(null_mat <= obs),
     rowMeans(null_mat >= obs)
