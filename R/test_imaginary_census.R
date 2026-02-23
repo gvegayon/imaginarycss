@@ -224,7 +224,7 @@ plot.imaginarycss_test <- function(x, main = "Motif Z-Scores vs Null", ...) {
 #' @noRd
 .aggregate_motifs <- function(census) {
   motif <- gsub("\\([0-9]+\\)\\s*", "", census$name)
-  agg   <- as.numeric(tapply(census$value, motif, sum))
-  names(agg) <- levels(factor(motif))
-  agg
+  res   <- tapply(census$value, motif, sum)
+  # Convert from 1-d array to plain named vector
+  setNames(as.numeric(res), names(res))
 }

@@ -66,9 +66,12 @@ expect_silent(capture.output(summary(res)))
 
 # plot method runs without error ------------------------------------------------
 expect_silent({
-  pdf(tempfile())
+  f <- tempfile(fileext = ".pdf")
+  pdf(f)
+  on.exit(dev.off())
   plot(res)
   dev.off()
+  on.exit()
 })
 
 # significance column is logical -------------------------------------------------
