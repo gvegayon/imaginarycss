@@ -5,8 +5,8 @@ new_barry_graph_cpp <- function(n, source, target, netsize, endpoints) {
     .Call(`_imaginarycss_new_barry_graph`, n, source, target, netsize, endpoints)
 }
 
-print_barry_graph_cpp <- function(x) {
-    invisible(.Call(`_imaginarycss_print_barry_graph`, x))
+print_barry_graph_cpp <- function(x, n) {
+    invisible(.Call(`_imaginarycss_print_barry_graph`, x, n))
 }
 
 #' Add a counter for reciprocity errors

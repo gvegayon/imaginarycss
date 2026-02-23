@@ -25,8 +25,8 @@ library(imaginarycss)
 # Load Krackhardt data
 data(krack_advice)
 data(krack_friendship)
-data(Krack_friendship_perceptions)
-data(Krack_advice_perceptions)
+data(krack_friendship_perceptions)
+data(krack_advice_perceptions)
 
 # Convert edge-list data frames to adjacency matrices
 df_to_adjmat <- function(df) {

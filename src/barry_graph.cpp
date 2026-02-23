@@ -35,7 +35,7 @@ SEXP new_barry_graph(
 }
 
 // [[Rcpp::export(name = "print_barry_graph_cpp", invisible = true, rng = false)]]
-int print_barry_graph(SEXP x) {
+int print_barry_graph(SEXP x, int n) {
   
   Rcpp::XPtr< netcounters::Network >ptr(x);
   
@@ -44,15 +44,19 @@ int print_barry_graph(SEXP x) {
   IntegerVector end = ptr.attr("endpoints");
   auto nnets = end.size();
 
-  int n = ptr.attr("netsize");
+  int netsize = ptr.attr("netsize");
   
   Rprintf(
     "A barry_graph with %i networks of size %i\n.",
     static_cast<int>(nnets) + 1,
-    n
+    netsize
   ); 
 
-  ptr->print_n(10u, 10u, "");
+  ptr->print_n(
+    static_cast<size_t>(n),
+    static_cast<size_t>(n),
+    ""
+  );
   
   return 0;
   
@@ -210,6 +214,7 @@ IntegerMatrix barray_to_edgelist(SEXP x) {
   return out;
 
 }
+
 
 #undef APPEND_COUNTER
 

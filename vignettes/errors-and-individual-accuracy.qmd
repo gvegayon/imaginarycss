@@ -36,6 +36,13 @@ adjmat[cbind(source_, target_)] <- 1L
 graph <- new_barry_graph(adjmat, n = 4)
 ```
 
+Printing the graph shows some information:
+
+```{r}
+#| label: print-graph
+print(graph)
+```
+
 ## Reciprocity Errors
 
 Reciprocity errors capture how often a perceiver incorrectly sees a directed

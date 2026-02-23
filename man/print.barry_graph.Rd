@@ -4,7 +4,7 @@
 \alias{print.barry_graph}
 \title{Print Barry Graph}
 \usage{
-\method{print}{barry_graph}(x, ...)
+\method{print}{barry_graph}(x, n = min(10, netsize(x)), ...)
 }
 \arguments{
 \item{x}{A barry_graph object.}

@@ -71,8 +71,7 @@ tie_level_accuracy <- function(
 ) {
   
   # Error if graph is not barry_graph
-  if (!inherits(graph, "barry_graph"))
-    stop("The graph is not a barry_graph.", call. = FALSE)
+  stopifnot_barry_graph(graph)
   
   # Getting the edgelist
   elist <- barray_to_edgelist(graph)
