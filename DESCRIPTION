@@ -24,6 +24,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 LinkingTo: Rcpp, barry
 Imports: 
+    graphics,
     Rcpp,
     stats
 Suggests: 

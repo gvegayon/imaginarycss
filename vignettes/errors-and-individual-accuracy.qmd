@@ -70,9 +70,8 @@ complete misperception (see `?count_imaginary_census` for definitions).
 ```{r census, fig.height=5, fig.width=7}
 census <- count_imaginary_census(graph)
 
-# Aggregate by motif type
-motif_type <- gsub("\\([0-9]+\\)\\s*", "", census$name)
-agg <- tapply(census$value, motif_type, sum)
+# Aggregate by motif type using the summary method
+agg <- summary(census)
 agg <- sort(agg)
 
 par(mar = c(4, 12, 3, 1))

@@ -50,7 +50,9 @@ count_recip_errors <- function(x, counter_type = 0L) {
 #' - (10) Accurate full
 #' @export
 count_imaginary_census <- function(x, counter_type = 0L) {
-    .Call(`_imaginarycss_count_imaginary_census`, x, counter_type)
+    res <- .Call(`_imaginarycss_count_imaginary_census`, x, counter_type)
+    class(res) <- c("imaginary_census", class(res))
+    res
 }
 
 #' Retrieves the edgelist of a barry_graph
