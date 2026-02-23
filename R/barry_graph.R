@@ -141,6 +141,8 @@ new_barry_graph.list <- function(x, ...) {
 #' Print method for barry_graph objects.
 #' 
 #' @param x A barry_graph object.
+#' @param n Integer. Number of nodes to display (default: min of 10 and
+#'   the network size).
 #' @param ... Additional arguments passed to print (currently ignored).
 #' 
 #' @return
