@@ -93,7 +93,21 @@ boxplot(accuracy[, -1],
         names = c("P(0|0) Ego", "P(1|1) Ego",
                   "P(0|0) Alter", "P(1|1) Alter"))
 
+# Using the Krackhardt advice network
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
+
+n_people <- 21
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+  krackhardt_advice$value
+
+krack_graph <- new_barry_graph(
+  c(list(advice_matrix), krackhardt_advice_perceptions)
+)
+
 # Method 1: Using accuracy data frame (recommended)
+accuracy <- tie_level_accuracy(krack_graph)
 sampled_networks <- sample_css_network(krack_graph, prob = accuracy)
 length(sampled_networks)
 
