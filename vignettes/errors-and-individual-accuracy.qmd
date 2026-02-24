@@ -53,8 +53,8 @@ assume reciprocity where none exists.
 
 ```{r}
 #| label: recip-errors
-#| fig-height: 4
-#| fig-width: 6
+#| fig.height: 4
+#| fig.width: 6
 recip_errors <- count_recip_errors(graph)
 barplot(
   recip_errors$value,
@@ -74,8 +74,8 @@ complete misperception (see `?count_imaginary_census` for definitions).
 
 ```{r}
 #| label: census
-#| fig-height: 5
-#| fig-width: 7
+#| fig.height: 5
+#| fig.width: 7
 census <- count_imaginary_census(graph)
 
 # Aggregate by motif type using the summary method
@@ -109,8 +109,8 @@ distributions for hypothesis testing.
 
 ```{r}
 #| label: accuracy
-#| fig-height: 5
-#| fig-width: 6
+#| fig.height: 5
+#| fig.width: 6
 accuracy <- tie_level_accuracy(graph)
 acc_mat <- as.matrix(accuracy[, c("p_0_ego", "p_1_ego", "p_0_alter", "p_1_alter")])
 
@@ -133,8 +133,8 @@ null distribution for any network statistic.
 
 ```{r}
 #| label: sampling
-#| fig-height: 4
-#| fig-width: 6
+#| fig.height: 4
+#| fig.width: 6
 set.seed(123)
 n_samples <- 100
 

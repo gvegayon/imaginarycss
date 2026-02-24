@@ -101,8 +101,8 @@ empirical p-values.
 
 ```{r}
 #| label: test
-#| fig-height: 7
-#| fig-width: 8
+#| fig.height: 7
+#| fig.width: 8
 set.seed(331)
 friendship_test <- test_imaginary_census(friendship_graph, n_sim = 100)
 advice_test     <- test_imaginary_census(advice_graph, n_sim = 100)
@@ -117,8 +117,8 @@ within the expected range under the null model are shown in grey.
 
 ```{r}
 #| label: results
-#| fig-height: 7
-#| fig-width: 8
+#| fig.height: 7
+#| fig.width: 8
 # Print significant motifs
 friendship_test
 advice_test
