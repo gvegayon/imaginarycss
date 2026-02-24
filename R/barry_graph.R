@@ -52,6 +52,25 @@ to_integer <- function(x) {
 #' @param x Either a matrix or a list of matrices, or an object of class 
 #' `barry_graph`.
 #' @param ... Currently ignored. 
+#' @examples
+#' # Using the Krackhardt advice network
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' # Convert edge-list data frame to adjacency matrix
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' krack_graph
+#'
+#' # Network size and number of networks
+#' netsize(krack_graph)
+#' nnets(krack_graph)
 #' @export
 #' @aliases barry_graph
 new_barry_graph <- function(x, ...) UseMethod("new_barry_graph")
@@ -148,6 +167,19 @@ new_barry_graph.list <- function(x, ...) {
 #' @return
 #' Invisibly returns the input object. Called for its side effect of printing.
 #' 
+#' @examples
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' print(krack_graph)
 #' @export
 print.barry_graph <- function(x, n = min(10, netsize(x)), ...) {
 

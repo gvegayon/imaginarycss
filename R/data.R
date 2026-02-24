@@ -12,7 +12,7 @@
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
 #' @references 
 #' Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-"krack_advice"
+"krackhardt_advice"
 
 #' Krackhardt High-Tech Managers Friendship Network
 #'
@@ -26,7 +26,7 @@
 #'   \item{value}{Integer, 1 if friendship exists, 0 otherwise}
 #' }
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-"krack_friendship"
+"krackhardt_friendship"
 
 #' Krackhardt High-Tech Managers Reporting Network
 #'
@@ -40,14 +40,14 @@
 #'   \item{value}{Integer, 1 if reporting relationship exists, 0 otherwise}
 #' }
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-"krack_reports"
+"krackhardt_reports"
 
 #' Krackhardt High-Tech Managers Attributes
 #'
 #' Node attributes for the 21 managers in Krackhardt's high-tech company study.
 #' Contains demographic and organizational information for each manager.
 #'
-#' @format A data frame with 21 rows and X variables:
+#' @format A data frame with 21 rows and 5 variables:
 #' \describe{
 #'   \item{ID}{Integer, manager ID (1-21)}
 #'   \item{AGE}{Numeric, age of the manager}
@@ -56,7 +56,7 @@
 #'   \item{DEPT}{Factor, department of the manager (e.g., "R&D", "Marketing", etc.)}
 #' }
 #' @source Krackhardt, D. (1987). Cognitive social structures. Social Networks, 9(2), 109-134.
-"krack_attributes"
+"krackhardt_attributes"
 
 #' Krackhardt Friendship Network Perception Errors
 #'
@@ -65,7 +65,7 @@
 #'
 #' @format A list of 21 matrices (21x21 each) representing individual perceptions
 #' @source Generated perception errors based on Krackhardt friendship data
-"krack_friendship_perceptions"
+"krackhardt_friendship_perceptions"
 
 #' Krackhardt Advice Network Perception Errors  
 #'
@@ -74,4 +74,4 @@
 #'
 #' @format A list of 21 matrices (21x21 each) representing individual perceptions
 #' @source Generated perception errors based on Krackhardt advice data
-"krack_advice_perceptions"
+"krackhardt_advice_perceptions"

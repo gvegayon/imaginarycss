@@ -22,22 +22,22 @@ library(imaginarycss)
 
 ## Data and Perceptions
 
-The package ships the advice network as a data frame (`krack_advice`) and
-a list of 21 perception matrices (`krack_advice_perceptions`).
+The package ships the advice network as a data frame (`krackhardt_advice`) and
+a list of 21 perception matrices (`krackhardt_advice_perceptions`).
 We convert the edge-list to an adjacency matrix and bundle it with the
 perception data into a `barry_graph` object.
 
 ```{r}
 #| label: data
-data(krack_advice)
-data(krack_advice_perceptions)
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
 
 # Convert edge-list data frame to adjacency matrix
-n_people <- max(c(krack_advice$from, krack_advice$to))
+n_people <- max(c(krackhardt_advice$from, krackhardt_advice$to))
 advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
-advice_matrix[cbind(krack_advice$from, krack_advice$to)] <- krack_advice$value
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <- krackhardt_advice$value
 
-krack_graph <- new_barry_graph(c(list(advice_matrix), krack_advice_perceptions))
+krack_graph <- new_barry_graph(c(list(advice_matrix), krackhardt_advice_perceptions))
 ```
 
 We can see how the network looks (as an adjacency matrix):
