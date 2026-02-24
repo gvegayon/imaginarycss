@@ -180,7 +180,7 @@ netsize <- function(x) {
 nnets <- function(x) {
 
   stopifnot_barry_graph(x)
-  attr(x, "nnets")
+  length(attr(x, "endpoints"))
 
 }
 
