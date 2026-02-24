@@ -4,10 +4,13 @@
 \alias{print.barry_graph}
 \title{Print Barry Graph}
 \usage{
-\method{print}{barry_graph}(x, ...)
+\method{print}{barry_graph}(x, n = min(10, netsize(x)), ...)
 }
 \arguments{
 \item{x}{A barry_graph object.}
+
+\item{n}{Integer. Number of nodes to display (default: min of 10 and
+the network size).}
 
 \item{...}{Additional arguments passed to print (currently ignored).}
 }

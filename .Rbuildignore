@@ -23,3 +23,5 @@
 ^.gitattributes$
 ^LICENSE\.md$
 ^CODE_OF_CONDUCT\.md$
+^AGENTS\.md$
+^README\.qmd$

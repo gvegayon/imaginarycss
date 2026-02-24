@@ -5,6 +5,8 @@
 \alias{barry_graph}
 \alias{new_barry_graph.matrix}
 \alias{new_barry_graph.list}
+\alias{netsize}
+\alias{nnets}
 \title{Binary Array Graph}
 \usage{
 new_barry_graph(x, ...)
@@ -12,13 +14,25 @@ new_barry_graph(x, ...)
 \method{new_barry_graph}{matrix}(x, n, ...)
 
 \method{new_barry_graph}{list}(x, ...)
+
+netsize(x)
+
+nnets(x)
 }
 \arguments{
-\item{x}{Either a matrix or a list of matrices.}
+\item{x}{Either a matrix or a list of matrices, or an object of class
+\code{barry_graph}.}
 
 \item{...}{Currently ignored.}
 
 \item{n}{Integer. The size of the original network.}
+}
+\value{
+The function \code{netsize()} returns the size of individual networks
+(all matching).
+
+\code{nnets()} returns the number of graphs contained in the \code{barry_graph}
+object.
 }
 \description{
 Binary Array Graph

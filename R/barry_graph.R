@@ -1,3 +1,15 @@
+# Function to stop if the object is not of class barry_graph
+stopifnot_barry_graph <- function(x) {
+
+  if (!inherits(x, "barry_graph")) {
+    stop(
+      "The passed object is not of class `barry_graph`, it is of ",
+      "class(es): '", paste(class(x), collapse="', '"), "'."
+      )
+  }
+
+}
+
 #' Convert to Integer
 #' 
 #' @description
@@ -37,7 +49,8 @@ to_integer <- function(x) {
   )
 }
 #' Binary Array Graph
-#' @param x Either a matrix or a list of matrices.
+#' @param x Either a matrix or a list of matrices, or an object of class 
+#' `barry_graph`.
 #' @param ... Currently ignored. 
 #' @export
 #' @aliases barry_graph
@@ -128,12 +141,46 @@ new_barry_graph.list <- function(x, ...) {
 #' Print method for barry_graph objects.
 #' 
 #' @param x A barry_graph object.
+#' @param n Integer. Number of nodes to display (default: min of 10 and
+#'   the network size).
 #' @param ... Additional arguments passed to print (currently ignored).
 #' 
 #' @return
 #' Invisibly returns the input object. Called for its side effect of printing.
 #' 
 #' @export
-print.barry_graph <- function(x, ...) {
-  suppressWarnings(print_barry_graph_cpp(x))
+print.barry_graph <- function(x, n = min(10, netsize(x)), ...) {
+
+  if ((n != as.integer(n)) || (n <= 0) || n > (netsize(x) * nnets(x)))
+    stop(
+      "`n` should be an integer within 1 and netsize(x) * nnets(x). ",
+      "It is ", n
+      )
+
+  suppressWarnings(print_barry_graph_cpp(x, as.integer(n)))
 }
+
+#' @export
+#' @return
+#' The function `netsize()` returns the size of individual networks
+#' (all matching).
+#' @rdname new_barry_graph
+netsize <- function(x) {
+
+  stopifnot_barry_graph(x)
+  attr(x, "netsize")
+
+}
+
+#' @export
+#' @rdname new_barry_graph
+#' @return
+#' `nnets()` returns the number of graphs contained in the `barry_graph`
+#' object. 
+nnets <- function(x) {
+
+  stopifnot_barry_graph(x)
+  length(attr(x, "endpoints"))
+
+}
+

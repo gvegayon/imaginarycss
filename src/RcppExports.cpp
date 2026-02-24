@@ -25,12 +25,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // print_barry_graph
-int print_barry_graph(SEXP x);
-RcppExport SEXP _imaginarycss_print_barry_graph(SEXP xSEXP) {
+int print_barry_graph(SEXP x, int n);
+RcppExport SEXP _imaginarycss_print_barry_graph(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(print_barry_graph(x));
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(print_barry_graph(x, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -45,14 +46,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// count_imaginary_census
-DataFrame count_imaginary_census(SEXP x, int counter_type);
-RcppExport SEXP _imaginarycss_count_imaginary_census(SEXP xSEXP, SEXP counter_typeSEXP) {
+// count_imaginary_census_cpp
+DataFrame count_imaginary_census_cpp(SEXP x, int counter_type);
+RcppExport SEXP _imaginarycss_count_imaginary_census_cpp(SEXP xSEXP, SEXP counter_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type counter_type(counter_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_imaginary_census(x, counter_type));
+    rcpp_result_gen = Rcpp::wrap(count_imaginary_census_cpp(x, counter_type));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -69,9 +70,9 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_imaginarycss_new_barry_graph", (DL_FUNC) &_imaginarycss_new_barry_graph, 5},
-    {"_imaginarycss_print_barry_graph", (DL_FUNC) &_imaginarycss_print_barry_graph, 1},
+    {"_imaginarycss_print_barry_graph", (DL_FUNC) &_imaginarycss_print_barry_graph, 2},
     {"_imaginarycss_count_recip_errors", (DL_FUNC) &_imaginarycss_count_recip_errors, 2},
-    {"_imaginarycss_count_imaginary_census", (DL_FUNC) &_imaginarycss_count_imaginary_census, 2},
+    {"_imaginarycss_count_imaginary_census_cpp", (DL_FUNC) &_imaginarycss_count_imaginary_census_cpp, 2},
     {"_imaginarycss_barray_to_edgelist", (DL_FUNC) &_imaginarycss_barray_to_edgelist, 1},
     {NULL, NULL, 0}
 };

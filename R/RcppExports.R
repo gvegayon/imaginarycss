@@ -5,8 +5,8 @@ new_barry_graph_cpp <- function(n, source, target, netsize, endpoints) {
     .Call(`_imaginarycss_new_barry_graph`, n, source, target, netsize, endpoints)
 }
 
-print_barry_graph_cpp <- function(x) {
-    invisible(.Call(`_imaginarycss_print_barry_graph`, x))
+print_barry_graph_cpp <- function(x, n) {
+    invisible(.Call(`_imaginarycss_print_barry_graph`, x, n))
 }
 
 #' Add a counter for reciprocity errors
@@ -48,9 +48,9 @@ count_recip_errors <- function(x, counter_type = 0L) {
 #' - (08) Complete false negative (full)
 #' - (09) Partial false negative (full)
 #' - (10) Accurate full
-#' @export
-count_imaginary_census <- function(x, counter_type = 0L) {
-    .Call(`_imaginarycss_count_imaginary_census`, x, counter_type)
+#' @noRd
+count_imaginary_census_cpp <- function(x, counter_type = 0L) {
+    .Call(`_imaginarycss_count_imaginary_census_cpp`, x, counter_type)
 }
 
 #' Retrieves the edgelist of a barry_graph
