@@ -9,6 +9,9 @@
 \arguments{
 \item{x}{A barry_graph object.}
 
+\item{n}{Integer. Number of nodes to display (default: min of 10 and
+the network size).}
+
 \item{...}{Additional arguments passed to print (currently ignored).}
 }
 \value{
