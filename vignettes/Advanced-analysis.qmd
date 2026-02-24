@@ -25,10 +25,10 @@ elevated or reduced relative to chance.
 library(imaginarycss)
 
 # Load Krackhardt data
-data(krack_advice)
-data(krack_friendship)
-data(krack_friendship_perceptions)
-data(krack_advice_perceptions)
+data(krackhardt_advice)
+data(krackhardt_friendship)
+data(krackhardt_friendship_perceptions)
+data(krackhardt_advice_perceptions)
 
 # Convert edge-list data frames to adjacency matrices
 df_to_adjmat <- function(df) {
@@ -38,8 +38,8 @@ df_to_adjmat <- function(df) {
   m
 }
 
-advice_matrix     <- df_to_adjmat(krack_advice)
-friendship_matrix <- df_to_adjmat(krack_friendship)
+advice_matrix     <- df_to_adjmat(krackhardt_advice)
+friendship_matrix <- df_to_adjmat(krackhardt_friendship)
 ```
 
 ## Data Overview
@@ -67,10 +67,10 @@ perception.
 ```{r}
 #| label: graphs
 friendship_graph <- new_barry_graph(
-  c(list(friendship_matrix), krack_friendship_perceptions)
+  c(list(friendship_matrix), krackhardt_friendship_perceptions)
 )
 advice_graph <- new_barry_graph(
-  c(list(advice_matrix), krack_advice_perceptions)
+  c(list(advice_matrix), krackhardt_advice_perceptions)
 )
 ```
 

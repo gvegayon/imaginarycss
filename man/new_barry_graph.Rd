@@ -45,3 +45,23 @@ diagonal matrix, with the first block corresponding to the reference
 If \code{x} is a list, the first matrix is assumed to be the reference
 (true) network.
 }
+\examples{
+# Using the Krackhardt advice network
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
+
+# Convert edge-list data frame to adjacency matrix
+n_people <- 21
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+  krackhardt_advice$value
+
+krack_graph <- new_barry_graph(
+  c(list(advice_matrix), krackhardt_advice_perceptions)
+)
+krack_graph
+
+# Network size and number of networks
+netsize(krack_graph)
+nnets(krack_graph)
+}

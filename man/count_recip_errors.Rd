@@ -24,3 +24,17 @@ This is controlled by the \code{counter_type} argument:
 \item 2: Only ties not including the perceiver
 }
 }
+\examples{
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
+
+n_people <- 21
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+  krackhardt_advice$value
+
+krack_graph <- new_barry_graph(
+  c(list(advice_matrix), krackhardt_advice_perceptions)
+)
+count_recip_errors(krack_graph)
+}

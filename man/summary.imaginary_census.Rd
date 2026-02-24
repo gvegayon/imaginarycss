@@ -20,21 +20,18 @@ Aggregates the per-perceiver motif counts returned by
 \code{\link[=count_imaginary_census]{count_imaginary_census()}} into totals per motif type.
 }
 \examples{
-# Create example networks
-true_net <- matrix(c(0, 1, 1, 0,
-                     1, 0, 0, 1,
-                     1, 0, 0, 1,
-                     0, 1, 1, 0), nrow = 4, byrow = TRUE)
-person1 <- matrix(c(0, 1, 0, 0,
-                    1, 0, 1, 1,
-                    0, 1, 0, 0,
-                    0, 1, 0, 0), nrow = 4, byrow = TRUE)
-person2 <- matrix(c(0, 1, 1, 1,
-                    1, 0, 0, 0,
-                    1, 0, 0, 1,
-                    1, 0, 1, 0), nrow = 4, byrow = TRUE)
-graph <- new_barry_graph(list(true_net, person1, person2))
-census <- count_imaginary_census(graph)
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
+
+n_people <- 21
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+  krackhardt_advice$value
+
+krack_graph <- new_barry_graph(
+  c(list(advice_matrix), krackhardt_advice_perceptions)
+)
+census <- count_imaginary_census(krack_graph)
 summary(census)
 
 }

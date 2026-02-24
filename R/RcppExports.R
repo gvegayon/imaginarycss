@@ -20,6 +20,19 @@ print_barry_graph_cpp <- function(x, n) {
 #' - 0: All ties
 #' - 1: Only ties including the perceiver
 #' - 2: Only ties not including the perceiver
+#' @examples
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' count_recip_errors(krack_graph)
 #' @export
 count_recip_errors <- function(x, counter_type = 0L) {
     .Call(`_imaginarycss_count_recip_errors`, x, counter_type)
@@ -57,6 +70,19 @@ count_imaginary_census_cpp <- function(x, counter_type = 0L) {
 #' @param x An object of class barry_graph.
 #' @return A matrix with two columns, the first one with the source and the
 #'   second one with the target.
+#' @examples
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' head(barray_to_edgelist(krack_graph))
 #' @export
 barray_to_edgelist <- function(x) {
     .Call(`_imaginarycss_barray_to_edgelist`, x)

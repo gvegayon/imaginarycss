@@ -2,4 +2,4 @@ docs
 inst/doc
 /doc/
 /Meta/
-.vscode
+.vscode_codeql_detected_source_root

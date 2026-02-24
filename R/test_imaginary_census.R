@@ -23,6 +23,21 @@
 #' - (10) Accurate full
 #' @return A data frame of class `"imaginary_census"` with columns `id`,
 #'   `name`, and `value`.
+#' @examples
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' census <- count_imaginary_census(krack_graph)
+#' head(census)
+#' summary(census)
 #' @export
 count_imaginary_census <- function(x, counter_type = 0L) {
   
@@ -45,21 +60,18 @@ count_imaginary_census <- function(x, counter_type = 0L) {
 #'   decreasing order).
 #'
 #' @examples
-#' # Create example networks
-#' true_net <- matrix(c(0, 1, 1, 0,
-#'                      1, 0, 0, 1,
-#'                      1, 0, 0, 1,
-#'                      0, 1, 1, 0), nrow = 4, byrow = TRUE)
-#' person1 <- matrix(c(0, 1, 0, 0,
-#'                     1, 0, 1, 1,
-#'                     0, 1, 0, 0,
-#'                     0, 1, 0, 0), nrow = 4, byrow = TRUE)
-#' person2 <- matrix(c(0, 1, 1, 1,
-#'                     1, 0, 0, 0,
-#'                     1, 0, 0, 1,
-#'                     1, 0, 1, 0), nrow = 4, byrow = TRUE)
-#' graph <- new_barry_graph(list(true_net, person1, person2))
-#' census <- count_imaginary_census(graph)
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' census <- count_imaginary_census(krack_graph)
 #' summary(census)
 #'
 #' @export
@@ -96,20 +108,18 @@ summary.imaginary_census <- function(object, ...) {
 #' }
 #'
 #' @examples
-#' true_net <- matrix(c(0, 1, 1, 0,
-#'                      1, 0, 0, 1,
-#'                      1, 0, 0, 1,
-#'                      0, 1, 1, 0), nrow = 4, byrow = TRUE)
-#' person1 <- matrix(c(0, 1, 0, 0,
-#'                     1, 0, 1, 1,
-#'                     0, 1, 0, 0,
-#'                     0, 1, 0, 0), nrow = 4, byrow = TRUE)
-#' person2 <- matrix(c(0, 1, 1, 1,
-#'                     1, 0, 0, 0,
-#'                     1, 0, 0, 1,
-#'                     1, 0, 1, 0), nrow = 4, byrow = TRUE)
-#' graph <- new_barry_graph(list(true_net, person1, person2))
-#' res <- test_imaginary_census(graph, n_sim = 50)
+#' data(krackhardt_advice)
+#' data(krackhardt_advice_perceptions)
+#'
+#' n_people <- 21
+#' advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+#' advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+#'   krackhardt_advice$value
+#'
+#' krack_graph <- new_barry_graph(
+#'   c(list(advice_matrix), krackhardt_advice_perceptions)
+#' )
+#' res <- test_imaginary_census(krack_graph, n_sim = 50)
 #' res
 #' summary(res)
 #' plot(res)
