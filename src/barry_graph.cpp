@@ -145,7 +145,7 @@ DataFrame count_recip_errors(
 //' - (10) Accurate full
 //' @noRd
 // [[Rcpp::export(rng = false)]]
-DataFrame count_imaginary_census(
+DataFrame count_imaginary_census_cpp(
     SEXP x,
     int counter_type = 0
 ) {

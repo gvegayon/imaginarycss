@@ -25,9 +25,12 @@
 #'   `name`, and `value`.
 #' @export
 count_imaginary_census <- function(x, counter_type = 0L) {
+  
+  stopifnot_barry_graph(x)
   res <- count_imaginary_census_cpp(x, counter_type)
   class(res) <- c("imaginary_census", class(res))
   res
+  
 }
 
 #' Summarize an imaginary census
