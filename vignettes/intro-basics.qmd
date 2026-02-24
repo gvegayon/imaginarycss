@@ -111,11 +111,22 @@ print(graph2)
 
 ## Inspecting Graph Attributes
 
+Once a `barry_graph` is created, you can inspect its attributes and
+extract an edge list. The `netsize` attribute gives the number of nodes
+per layer, and `endpoints` marks the boundary indices of each layer
+in the underlying block-diagonal structure.
+
 ```{r}
 #| label: graph-attributes
 #| collapse: true
-cat("Network size:", attr(graph, "netsize"), "\n")
-cat("Endpoints:  ", attr(graph, "endpoints"), "\n")
+# Network size and layer boundaries
+data.frame(
+  Attribute = c("Network size", "Endpoints"),
+  Value     = c(attr(graph, "netsize"),
+                paste(attr(graph, "endpoints"), collapse = ", "))
+)
+
+# First rows of the edge list
 head(barray_to_edgelist(graph))
 ```
 

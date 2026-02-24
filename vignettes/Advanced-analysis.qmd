@@ -44,11 +44,16 @@ friendship_matrix <- df_to_adjmat(krack_friendship)
 
 ```{r data-overview}
 n <- nrow(advice_matrix)
-cat("Dataset: 21 managers in a high-tech company\n")
-cat("Friendship -- Edges:", sum(friendship_matrix),
-    "| Density:", round(sum(friendship_matrix) / (n * (n - 1)), 3), "\n")
-cat("Advice     -- Edges:", sum(advice_matrix),
-    "| Density:", round(sum(advice_matrix) / (n * (n - 1)), 3), "\n")
+
+# Network summary
+data.frame(
+  Network    = c("Friendship", "Advice"),
+  Edges      = c(sum(friendship_matrix), sum(advice_matrix)),
+  Density    = round(c(
+    sum(friendship_matrix) / (n * (n - 1)),
+    sum(advice_matrix)     / (n * (n - 1))
+  ), 3)
+)
 ```
 
 ## Creating the CSS Graphs
@@ -74,11 +79,11 @@ categories. The `summary()` method aggregates counts across perceivers.
 friendship_observed <- count_imaginary_census(friendship_graph)
 advice_observed     <- count_imaginary_census(advice_graph)
 
-cat("Friendship motifs (top 6):\n")
-print(head(summary(friendship_observed)))
+# Friendship motifs (top 6)
+head(summary(friendship_observed))
 
-cat("\nAdvice motifs (top 6):\n")
-print(head(summary(advice_observed)))
+# Advice motifs (top 6)
+head(summary(advice_observed))
 ```
 
 ## Null-Model Testing
@@ -96,6 +101,11 @@ advice_test     <- test_imaginary_census(advice_graph, n_sim = 100)
 ```
 
 ## Results
+
+The `plot()` method for `imaginarycss_test` objects shows a horizontal
+barplot of z-scores for each motif. Motifs whose z-score exceeds the
+critical threshold (dashed red lines) are coloured steelblue; those
+within the expected range under the null model are shown in grey.
 
 ```{r results, fig.height=7, fig.width=8}
 # Print significant motifs
@@ -121,13 +131,18 @@ summary(friendship_test)
 friendship_acc <- tie_level_accuracy(friendship_graph)
 advice_acc     <- tie_level_accuracy(advice_graph)
 
-cat("Mean individual accuracy:\n")
-cat(sprintf("  Friendship -- TP: %.3f  TN: %.3f\n",
-  mean(friendship_acc$p_1_ego, na.rm = TRUE),
-  mean(friendship_acc$p_0_ego, na.rm = TRUE)))
-cat(sprintf("  Advice     -- TP: %.3f  TN: %.3f\n",
-  mean(advice_acc$p_1_ego, na.rm = TRUE),
-  mean(advice_acc$p_0_ego, na.rm = TRUE)))
+# Mean individual accuracy
+data.frame(
+  Network = c("Friendship", "Advice"),
+  TP      = round(c(
+    mean(friendship_acc$p_1_ego, na.rm = TRUE),
+    mean(advice_acc$p_1_ego,     na.rm = TRUE)
+  ), 3),
+  TN      = round(c(
+    mean(friendship_acc$p_0_ego, na.rm = TRUE),
+    mean(advice_acc$p_0_ego,     na.rm = TRUE)
+  ), 3)
+)
 ```
 
 ## Conclusion

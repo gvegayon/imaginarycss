@@ -20,6 +20,10 @@
 - **Vignette guidelines**: vignettes should be concise (3--4 pages), balance
   code with explanatory text, and focus on demonstrating the package's
   functions rather than auxiliary visualization code.
+- **Avoid `cat()` for output**: in vignettes and examples, do not use
+  `cat()` to format multi-line output. Instead, print a `data.frame` or
+  named vector, or use `knitr::kable()`. A single-line `cat()` is
+  acceptable, but multi-line `cat()` blocks look bad in rendered output.
 
 ## Validation
 
