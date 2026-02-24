@@ -8,7 +8,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+```{r}
+#| label: setup
 library(imaginarycss)
 ```
 
@@ -26,7 +27,8 @@ classifies these deviations using two complementary tools:
 
 We use a four-node network with one perceiver to illustrate the key ideas.
 
-```{r basic-setup}
+```{r}
+#| label: basic-setup
 # Build a true network and one perceiver's view
 source_ <- c(1, 2, 3, 1, c(1, 2, 3) + 4)
 target_ <- c(2, 1, 4, 4, c(2, 1, 4) + 4)
@@ -49,7 +51,10 @@ Reciprocity errors capture how often a perceiver incorrectly sees a directed
 tie as mutual (or vice versa). Higher counts indicate a stronger tendency to
 assume reciprocity where none exists.
 
-```{r recip-errors, fig.height=4, fig.width=6}
+```{r}
+#| label: recip-errors
+#| fig-height: 4
+#| fig-width: 6
 recip_errors <- count_recip_errors(graph)
 barplot(
   recip_errors$value,
@@ -67,7 +72,10 @@ The imaginary census classifies every perceiver--dyad combination into one of
 ten categories that capture the full spectrum from accurate perception to
 complete misperception (see `?count_imaginary_census` for definitions).
 
-```{r census, fig.height=5, fig.width=7}
+```{r}
+#| label: census
+#| fig-height: 5
+#| fig-width: 7
 census <- count_imaginary_census(graph)
 
 # Aggregate by motif type using the summary method
@@ -99,7 +107,10 @@ into four probabilities:
 These rates are then used by `sample_css_network()` to generate null
 distributions for hypothesis testing.
 
-```{r accuracy, fig.height=5, fig.width=6}
+```{r}
+#| label: accuracy
+#| fig-height: 5
+#| fig-width: 6
 accuracy <- tie_level_accuracy(graph)
 acc_mat <- as.matrix(accuracy[, c("p_0_ego", "p_1_ego", "p_0_alter", "p_1_alter")])
 
@@ -120,7 +131,10 @@ synthetic CSS data that preserves each perceiver's overall error rates but
 randomises which dyads are misperceived. Repeating this many times yields a
 null distribution for any network statistic.
 
-```{r sampling, fig.height=4, fig.width=6}
+```{r}
+#| label: sampling
+#| fig-height: 4
+#| fig-width: 6
 set.seed(123)
 n_samples <- 100
 

@@ -45,7 +45,8 @@ people understand social structure.
 - **Null models**: generate null distributions for statistical testing of
   imaginary structures.
 
-```{r load-package}
+```{r}
+#| label: load-package
 library(imaginarycss)
 ```
 
@@ -61,7 +62,8 @@ The most straightforward way to create a `barry_graph` is from a list of
 adjacency matrices. The first matrix is the true network; the rest are
 individual perceptions.
 
-```{r list-example}
+```{r}
+#| label: list-example
 # True network (4 nodes)
 true_net <- matrix(c(
   0, 1, 0, 1,
@@ -95,7 +97,8 @@ print(graph)
 Alternatively, you can pass a single block-diagonal matrix where each
 `n x n` block corresponds to a network layer.
 
-```{r matrix-example}
+```{r}
+#| label: matrix-example
 # Build an 8x8 block-diagonal matrix (two 4x4 networks)
 source_ <- c(1, 2, 3, 1)
 target_ <- c(2, 1, 4, 4)

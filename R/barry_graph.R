@@ -151,9 +151,9 @@ new_barry_graph.list <- function(x, ...) {
 #' @export
 print.barry_graph <- function(x, n = min(10, netsize(x)), ...) {
 
-  if ((n != as.integer(n)) || (n <= 0) || n > netsize(x))
+  if ((n != as.integer(n)) || (n <= 0) || n > (netsize(x) * nnets(x)))
     stop(
-      "`n` should be an integer within 1 and netsize(x). ",
+      "`n` should be an integer within 1 and netsize(x) * nnets(x). ",
       "It is ", n
       )
 

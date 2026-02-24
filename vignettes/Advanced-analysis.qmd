@@ -19,7 +19,9 @@ elevated or reduced relative to chance.
 
 ## Setup
 
-```{r setup, message=FALSE}
+```{r}
+#| label: setup
+#| message: false
 library(imaginarycss)
 
 # Load Krackhardt data
@@ -42,7 +44,8 @@ friendship_matrix <- df_to_adjmat(krack_friendship)
 
 ## Data Overview
 
-```{r data-overview}
+```{r}
+#| label: data-overview
 n <- nrow(advice_matrix)
 
 # Network summary
@@ -61,7 +64,8 @@ data.frame(
 Each graph bundles the true network (first element) with every individual's
 perception.
 
-```{r graphs}
+```{r}
+#| label: graphs
 friendship_graph <- new_barry_graph(
   c(list(friendship_matrix), krack_friendship_perceptions)
 )
@@ -75,7 +79,8 @@ advice_graph <- new_barry_graph(
 The imaginary census classifies every perceiver--dyad pair into one of ten
 categories. The `summary()` method aggregates counts across perceivers.
 
-```{r observed}
+```{r}
+#| label: observed
 friendship_observed <- count_imaginary_census(friendship_graph)
 advice_observed     <- count_imaginary_census(advice_graph)
 
@@ -94,7 +99,10 @@ network. Each sample preserves every perceiver's four accuracy rates
 specific dyads are misperceived. It then computes z-scores and two-sided
 empirical p-values.
 
-```{r test, fig.height=7, fig.width=8}
+```{r}
+#| label: test
+#| fig-height: 7
+#| fig-width: 8
 set.seed(331)
 friendship_test <- test_imaginary_census(friendship_graph, n_sim = 100)
 advice_test     <- test_imaginary_census(advice_graph, n_sim = 100)
@@ -107,7 +115,10 @@ barplot of z-scores for each motif. Motifs whose z-score exceeds the
 critical threshold (dashed red lines) are coloured steelblue; those
 within the expected range under the null model are shown in grey.
 
-```{r results, fig.height=7, fig.width=8}
+```{r}
+#| label: results
+#| fig-height: 7
+#| fig-width: 8
 # Print significant motifs
 friendship_test
 advice_test
@@ -121,13 +132,15 @@ plot(advice_test,     main = "Advice: Motif Z-Scores vs Null")
 
 The `summary()` method shows all motifs with their test statistics.
 
-```{r summary}
+```{r}
+#| label: summary
 summary(friendship_test)
 ```
 
 ## Tie-Level Accuracy
 
-```{r accuracy}
+```{r}
+#| label: accuracy
 friendship_acc <- tie_level_accuracy(friendship_graph)
 advice_acc     <- tie_level_accuracy(advice_graph)
 

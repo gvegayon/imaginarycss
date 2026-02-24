@@ -15,7 +15,8 @@ classic Krackhardt (1987) dataset of 21 managers in a high-tech company.
 We construct a CSS object from the advice network and its individual
 perceptions, then compute accuracy rates and the imaginary census.
 
-```{r setup}
+```{r}
+#| label: setup
 library(imaginarycss)
 ```
 
@@ -26,7 +27,8 @@ a list of 21 perception matrices (`krack_advice_perceptions`).
 We convert the edge-list to an adjacency matrix and bundle it with the
 perception data into a `barry_graph` object.
 
-```{r data}
+```{r}
+#| label: data
 data(krack_advice)
 data(krack_advice_perceptions)
 
@@ -38,14 +40,31 @@ advice_matrix[cbind(krack_advice$from, krack_advice$to)] <- krack_advice$value
 krack_graph <- new_barry_graph(c(list(advice_matrix), krack_advice_perceptions))
 ```
 
+We can see how the network looks (as an adjacency matrix):
+
+```{r}
+#| label: plot-network
+print(krack_graph)
+```
+
 ## Individual Accuracy
 
 The function `tie_level_accuracy()` decomposes each perceiver's accuracy
 into four probabilities, separating ego-involved from alter-only dyads and
 true positives from true negatives.
 
-```{r accuracy, fig.height=5, fig.width=6}
+```{r}
+#| label: accuracy
 acc <- tie_level_accuracy(krack_graph)
+acc
+```
+
+We can further view this as a summary:
+
+```{r}
+#| label: accuracy-summ
+#| fig.height: 5
+#| fig.width: 6
 
 # Mean accuracy rates as a data.frame
 data.frame(
@@ -89,6 +108,11 @@ head(krack_recip, 5)
 
 ## Organizational Takeaways
 
+We now consolidate key statistics from the analysis above. The summary table
+below reports network-level properties (size and density) alongside
+individual-level accuracy measures, identifying which managers perceive the
+advice network most and least accurately.
+
 ```{r}
 #| label: takeaways
 #| collapse: true
@@ -107,4 +131,11 @@ data.frame(
                 paste0(worst, " (", round(acc$p_1_ego[worst], 3), ")"))
 )
 ```
+
+The advice network is relatively dense (45%), meaning nearly half of all
+possible ties exist. On average, managers correctly identify about 70% of
+existing ego-involved advice ties. Manager 10 stands out as the most
+perceptive, while Manager 13 shows the most room for improvement. These
+differences in perceptual accuracy may reflect variation in organizational
+position or engagement with the informal advice structure.
 
