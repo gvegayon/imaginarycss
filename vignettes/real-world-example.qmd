@@ -92,7 +92,9 @@ boxplot(
 The imaginary census and reciprocity error counts summarize which types
 of misperception are most prevalent across all perceivers.
 
-```{r structure}
+```{r}
+#| label: structure
+#| collapse: true
 krack_census <- count_imaginary_census(krack_graph)
 krack_recip  <- count_recip_errors(krack_graph)
 
@@ -104,7 +106,9 @@ print(head(krack_recip, 5))
 
 ## Organizational Takeaways
 
-```{r takeaways}
+```{r}
+#| label: takeaways
+#| collapse: true
 density <- sum(advice_matrix) / (n_people * (n_people - 1))
 avg_tp  <- mean(acc$p_1_ego, na.rm = TRUE)
 best    <- which.max(acc$p_1_ego)

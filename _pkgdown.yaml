@@ -10,11 +10,3 @@ home:
 
 build:
   bootstrap: true
-  
-articles:
-- title: "Vignettes" 
-  contents:
-  - Advanced-analysis
-  - intro-basics
-  - real-world-example
-  - errors-and-individual-accuracy
