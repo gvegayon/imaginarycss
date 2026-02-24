@@ -5,8 +5,11 @@ install:
 README.md: README.qmd
 	quarto render README.qmd
 
-check: build
-	R CMD check --as-cran ${PKGNAME}_${VERSION}.tar.gz
+check:
+	Rscript --vanilla -e 'devtools::check()'
+
+clean:
+	Rscript --vanilla -e 'devtools::clean_dll()'
 
 # Once running, we can set a debug point using 'break [filename].hpp:[linenumber]
 # and then type 'run'
