@@ -69,99 +69,42 @@ two alters. When \code{prob} is a data frame, the function will sample from
 each row of the data frame (returned from the function \code{tie_level_accuracy}).
 }
 \examples{
-# Create example networks
-true_net <- matrix(c(0, 1, 1, 0,
-                     1, 0, 0, 1,
-                     1, 0, 0, 1,
-                     0, 1, 1, 0), nrow = 4, byrow = TRUE)
+# Using the Krackhardt advice network
+data(krackhardt_advice)
+data(krackhardt_advice_perceptions)
 
-# Person 1's perception (some errors)
-person1_view <- matrix(c(0, 1, 0, 0,
-                        1, 0, 1, 1,
-                        0, 1, 0, 0,
-                        0, 1, 0, 0), nrow = 4, byrow = TRUE)
+n_people <- 21
+advice_matrix <- matrix(0L, nrow = n_people, ncol = n_people)
+advice_matrix[cbind(krackhardt_advice$from, krackhardt_advice$to)] <-
+  krackhardt_advice$value
 
-# Person 2's perception (different errors)
-person2_view <- matrix(c(0, 1, 1, 1,
-                        1, 0, 0, 0,
-                        1, 0, 0, 1,
-                        1, 0, 1, 0), nrow = 4, byrow = TRUE)
-
-# Create barry graph
-networks <- list(true_net, person1_view, person2_view)
-graph <- new_barry_graph(networks)
+krack_graph <- new_barry_graph(
+  c(list(advice_matrix), krackhardt_advice_perceptions)
+)
 
 # Calculate accuracy rates
-accuracy <- tie_level_accuracy(graph)
+accuracy <- tie_level_accuracy(krack_graph)
 print(accuracy)
 
 # Visualize accuracy patterns
-boxplot(accuracy[, -1], 
+boxplot(accuracy[, -1],
         main = "Accuracy Rates by Type",
         ylab = "Probability",
-        names = c("P(0|0) Ego", "P(1|1) Ego", "P(0|0) Alter", "P(1|1) Alter"))
-
-# Calculate for specific networks only
-accuracy_subset <- tie_level_accuracy(graph, which_nets = c(1, 2))
-print(accuracy_subset)
-
-# Create example networks for sampling
-baseline <- matrix(c(0, 1, 1, 0,
-                    1, 0, 0, 1,
-                    1, 0, 0, 1,
-                    0, 1, 1, 0), nrow = 4, byrow = TRUE)
-
-perception1 <- matrix(c(0, 1, 0, 0,
-                       1, 0, 1, 1,
-                       0, 1, 0, 0,
-                       0, 1, 0, 0), nrow = 4, byrow = TRUE)
-
-perception2 <- matrix(c(0, 1, 1, 1,
-                       1, 0, 0, 0,
-                       1, 0, 0, 1,
-                       1, 0, 1, 0), nrow = 4, byrow = TRUE)
-
-# Create graph
-graph <- new_barry_graph(list(baseline, perception1, perception2))
+        names = c("P(0|0) Ego", "P(1|1) Ego",
+                  "P(0|0) Alter", "P(1|1) Alter"))
 
 # Method 1: Using accuracy data frame (recommended)
-accuracy <- tie_level_accuracy(graph)
-sampled_networks <- sample_css_network(graph, prob = accuracy)
+sampled_networks <- sample_css_network(krack_graph, prob = accuracy)
+length(sampled_networks)
 
-# Print number of networks generated
-cat("Generated", length(sampled_networks), "networks\n")
-
-# Check first sampled network
-print("First sampled network:")
-print(sampled_networks[[2]])  # [[1]] is baseline if keep_baseline=TRUE
-
-# Method 2: Using manual probability vector
+# Method 2: Using manual probability vector for a single perceiver
 # p_0_ego, p_1_ego, p_0_alter, p_1_alter
 manual_probs <- c(0.8, 0.9, 0.85, 0.75)
 sampled_manual <- sample_css_network(
-  graph, 
-  prob = manual_probs, 
+  krack_graph,
+  prob = manual_probs,
   i = 1,
   keep_baseline = FALSE
 )
-
-print("Manual probability sampling:")
-print(sampled_manual[[1]])
-
-# Method 3: Generate multiple samples for simulation
-n_simulations <- 5
-simulation_results <- replicate(n_simulations, {
-  sample_css_network(graph, prob = accuracy, keep_baseline = FALSE)
-}, simplify = FALSE)
-
-cat("Generated", length(simulation_results), "simulation rounds\n")
-cat("Each round has", length(simulation_results[[1]]), "networks\n")
-
-# Compare original vs sampled network properties
-original_density <- mean(baseline)
-sampled_density <- mean(sampled_networks[[2]])
-
-cat("Original network density:", round(original_density, 3), "\n")
-cat("Sampled network density:", round(sampled_density, 3), "\n")
 
 }
