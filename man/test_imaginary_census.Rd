@@ -45,6 +45,15 @@ containing:
 \item{n_sim}{Number of simulations used.}
 \item{alpha}{Significance level used.}
 }
+
+\code{print.imaginarycss_test()} returns the input object invisibly.
+Called for its side effect of printing a summary of significant motifs.
+
+\code{summary.imaginarycss_test()} returns the input object invisibly.
+Called for its side effect of printing the full results table.
+
+\code{plot.imaginarycss_test()} returns the input object invisibly.
+Called for its side effect of drawing a horizontal barplot of z-scores.
 }
 \description{
 Generates a null distribution of imaginary-census motif counts by

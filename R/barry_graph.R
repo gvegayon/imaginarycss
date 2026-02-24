@@ -71,6 +71,11 @@ to_integer <- function(x) {
 #' # Network size and number of networks
 #' netsize(krack_graph)
 #' nnets(krack_graph)
+#' @return
+#' `new_barry_graph()` returns an external pointer object of class
+#' `"barry_graph"` with attributes `netsize` (integer scalar giving the
+#' size of each individual network) and `endpoints` (integer vector
+#' marking the boundary rows of the stacked networks).
 #' @export
 #' @aliases barry_graph
 new_barry_graph <- function(x, ...) UseMethod("new_barry_graph")
