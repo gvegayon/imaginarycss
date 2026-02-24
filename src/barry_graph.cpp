@@ -143,7 +143,7 @@ DataFrame count_recip_errors(
 //' - (08) Complete false negative (full)
 //' - (09) Partial false negative (full)
 //' - (10) Accurate full
-//' @export
+//' @noRd
 // [[Rcpp::export(rng = false)]]
 DataFrame count_imaginary_census(
     SEXP x,
