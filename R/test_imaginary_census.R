@@ -189,6 +189,8 @@ test_imaginary_census <- function(
 #' @rdname test_imaginary_census
 #' @param x An object of class `"imaginarycss_test"`.
 #' @param ... Currently ignored.
+#' @return `print.imaginarycss_test()` returns the input object invisibly.
+#'   Called for its side effect of printing a summary of significant motifs.
 #' @export
 print.imaginarycss_test <- function(x, ...) {
 
@@ -210,6 +212,8 @@ print.imaginarycss_test <- function(x, ...) {
 
 #' @rdname test_imaginary_census
 #' @param object An object of class `"imaginarycss_test"`.
+#' @return `summary.imaginarycss_test()` returns the input object invisibly.
+#'   Called for its side effect of printing the full results table.
 #' @export
 summary.imaginarycss_test <- function(object, ...) {
 
@@ -235,6 +239,8 @@ summary.imaginarycss_test <- function(object, ...) {
 
 #' @rdname test_imaginary_census
 #' @param main Character. Plot title.
+#' @return `plot.imaginarycss_test()` returns the input object invisibly.
+#'   Called for its side effect of drawing a horizontal barplot of z-scores.
 #' @export
 #' @importFrom graphics barplot abline par
 plot.imaginarycss_test <- function(x, main = "Motif Z-Scores vs Null", ...) {

@@ -11,6 +11,11 @@ count_recip_errors(x, counter_type = 0L)
 
 \item{counter_type}{An integer indicating the type of census to compute (see details).}
 }
+\value{
+A data frame with columns \code{id} (integer perceiver identifier),
+\code{name} (character label for the reciprocity error type), and \code{value}
+(numeric count).
+}
 \description{
 Add a counter for reciprocity errors
 }

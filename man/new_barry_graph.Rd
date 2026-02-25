@@ -28,6 +28,11 @@ nnets(x)
 \item{n}{Integer. The size of the original network.}
 }
 \value{
+\code{new_barry_graph()} returns an external pointer object of class
+\code{"barry_graph"} with attributes \code{netsize} (integer scalar giving the
+size of each individual network) and \code{endpoints} (integer vector
+marking the boundary rows of the stacked networks).
+
 The function \code{netsize()} returns the size of individual networks
 (all matching).
 
