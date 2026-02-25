@@ -76,6 +76,9 @@ int print_barry_graph(SEXP x, int n) {
 //' - 0: All ties
 //' - 1: Only ties including the perceiver
 //' - 2: Only ties not including the perceiver
+//' @return A data frame with columns `id` (integer perceiver identifier),
+//'   `name` (character label for the reciprocity error type), and `value`
+//'   (numeric count).
 //' @examples
 //' data(krackhardt_advice)
 //' data(krackhardt_advice_perceptions)
