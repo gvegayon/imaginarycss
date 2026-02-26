@@ -130,10 +130,8 @@ count_recip_errors(graph)
 #> 14  0  (09) Partial false negative (full) (0)     1
 #> 15  0                  (10) Accurate full (0)     0
 ```
-
 ## Code of Conduct
 
 Please note that the imaginarycss project is released with a
-[Contributor Code of
-Conduct](https://gvegayon.github.io/imaginary-structures/CODE_OF_CONDUCT.html).
+[Contributor Code of Conduct](https://github.com/gvegayon/imaginarycss/blob/main/CODE_OF_CONDUCT.md).
 By contributing to this project, you agree to abide by its terms.

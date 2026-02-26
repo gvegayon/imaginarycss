@@ -1,37 +1,17 @@
 Package: imaginarycss
-Version: 0.1.0
+Version: 0.1.1
 Title: Tools for Studying Imaginary Cognitive Social Structure
-Description: This package provides functions to measure and test imaginary cognitive social structure (CSS) motifs, which are patterns of perceived relationships among individuals in a social network. The package includes tools for calculating motif frequencies, comparing observed motifs to expected distributions, and visualizing motif structures. It implements the methods described in Tanaka and Vega Yon (2023) <DOI:10.1016/j.socnet.2023.11.005>.
-URL: https://gvegayon.github.io/imaginary-structures
+Description: Provides functions to measure and test imaginary cognitive social structure (CSS) motifs, which are patterns of perceived relationships among individuals in a social network. Includes tools for calculating motif frequencies, comparing observed motifs to expected distributions, and visualizing motif structures. Implements methods described in Tanaka and Vega Yon (2023) <https://doi.org/10.1016/j.socnet.2023.11.005>.
+URL: https://gvegayon.github.io/imaginary-structures/
 BugReports: https://github.com/gvegayon/imaginary-structures/issues
-Authors@R: c(
-  person(
-    "Sima", "Najafzadehkhoei", role=c("aut","cre"), email="sima.njf@utah.edu",
-    comment = c(ORCID = "0009-0002-6253-2910")
-  ),
-  person(
-    "George", "Vega Yon", role=c("aut"), email="g.vegayon@gmail.com",
-    comment = c(ORCID = "0000-0002-3171-0844")
-    ),
-  person(
-    "Kyosuke", "Tanaka", role=c("aut"), email="kyokke.tanaka@gmail.com",
-    comment = c(ORCID = "0000-0002-1850-6814")
-  ))
+Authors@R: c(person(given="Sima", family="Najafzadehkhoei", role=c("aut","cre"), email="sima.njf@utah.edu", comment=c(ORCID="0009-0002-6253-2910")), person(given="George", family="Vega Yon", role="aut", email="g.vegayon@gmail.com", comment=c(ORCID="0000-0002-3171-0844")), person(given="Kyosuke", family="Tanaka", role="aut", email="kyokke.tanaka@gmail.com", comment=c(ORCID="0000-0002-1850-6814")))
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 LinkingTo: Rcpp, barry
-Imports: 
-    graphics,
-    Rcpp,
-    stats
-Suggests: 
-    knitr,
-    rmarkdown,
-    tinytest,
-    quarto
-Depends: 
-    R (>= 4.0.0)
+Imports: graphics, Rcpp, stats
+Suggests: knitr, rmarkdown, tinytest, quarto
+Depends: R (>= 4.0.0)
 VignetteBuilder: quarto
