@@ -16,6 +16,16 @@ knitr::opts_chunk$set(
 # imaginarycss: Tools for Studying Imaginary Cognitive Social Structure
 
 <!-- badges: start -->
+
+<!-- how-to-cite -->
+> [!NOTE]
+> **How to cite imaginarycss.** If you use **imaginarycss** in published work, please cite it:
+>
+> Tanaka K, Vega Yon GG (2024). Imaginary network motifs: Structural patterns of false positives and negatives in social networks. *Social Networks* 78, 65-80. doi:[10.1016/j.socnet.2023.11.005](https://doi.org/10.1016/j.socnet.2023.11.005)
+>
+> Run `citation("imaginarycss")` in R for the BibTeX entry.
+<!-- how-to-cite -->
+
 ```{=markdown}
 [![CRAN status](https://www.r-pkg.org/badges/version/imaginarycss)](https://CRAN.R-project.org/package=imaginarycss)
 [![R-CMD-check](https://github.com/gvegayon/imaginarycss/actions/workflows/r-cmd-check.yml/badge.svg)](https://github.com/gvegayon/imaginarycss/actions/workflows/r-cmd-check.yml)

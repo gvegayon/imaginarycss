@@ -8,6 +8,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- how-to-cite -->
+::: {.callout-note}
+## How to cite
+
+If you use **imaginarycss** in published work, please cite it — run
+`citation("imaginarycss")` in R for the full entry.
+:::
+<!-- how-to-cite -->
+
 # Krackhardt Advice Network
 
 This vignette demonstrates a complete `imaginarycss` workflow using the
