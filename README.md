@@ -15,6 +15,16 @@
 
 <!-- badges: end -->
 
+
+<!-- how-to-cite -->
+> [!NOTE]
+> **How to cite imaginarycss.** If you use **imaginarycss** in published work, please cite it:
+>
+> Tanaka K, Vega Yon GG (2024). Imaginary network motifs: Structural patterns of false positives and negatives in social networks. *Social Networks* 78, 65-80. doi:[10.1016/j.socnet.2023.11.005](https://doi.org/10.1016/j.socnet.2023.11.005)
+>
+> Run `citation("imaginarycss")` in R for the BibTeX entry.
+<!-- how-to-cite -->
+
 The `imaginarycss` package provides functions to measure and test
 imaginary cognitive social structure (CSS) motifs, which are patterns of
 perceived relationships among individuals in a social network. The

@@ -8,6 +8,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- how-to-cite -->
+::: {.callout-note}
+## How to cite
+
+If you use **imaginarycss** in published work, please cite it — run
+`citation("imaginarycss")` in R for the full entry.
+:::
+<!-- how-to-cite -->
+
 # Imaginary Network Motifs: Testing Systematic Perception Errors
 
 People do not perceive social networks randomly---their errors follow
