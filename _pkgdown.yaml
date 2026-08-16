@@ -2,7 +2,15 @@ url: https://gvegayon.github.io/imaginary-structures
 
 template:
   bootstrap: 5
-  
+
+authors:
+  "Sima Najafzadehkhoei":
+    href: "https://github.com/sima-njf"
+  "George Vega Yon":
+    href: "https://ggvy.cl"
+  "Kyosuke Tanaka":
+    href: "https://orcid.org/0000-0002-1850-6814"
+
 home:
   title: "Imaginary CSS Structures"
   description: >
